@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MovieApp</string>
+
+    <string name="navdrawer_item_home">Home</string>
+    <string name="navdrawer_item_upcoming">Upcoming</string>
+
+    <!-- Menu item that allows the user to start a search for a session by name. After clicking,
+    they type in their search query. -->
+    <string name="description_search">Search</string>
+
+    <!-- Menu item that allows user to reload the data in the current screen so they see
+    the most up-to-date version from the server. -->
+    <string name="description_refresh">Refresh</string>
+
+    <!-- Menu item that brings up the application's About screen -->
+    <string name="description_about">About</string>
+
+
+
+
+    <!-- Title text for dialog screen about the application -->
+    <string name="title_about">About</string>
+
+    <!-- Shown as a link in the About screen of the app; user can click it to see the licenses. -->
+    <string name="about_licenses">Open Source Licenses</string>
+
+    <!-- Shown in the 'About' window of the app. -->
+    <string name="about_body"><![CDATA[
+        <b>Google I/O 2014</b><br>
+        Version %s<br><br>
+        <a href="http://m.google.com/utos">Terms of Service</a><br><br>
+        <a href="http://www.google.com/policies/privacy/">Privacy Policy</a>
+    ]]></string>
+
+    <!-- A single button shown on informative popups, like EULA, open source licenses and About -->
+    <string name="ok">OK</string>
+
+
+    <!-- Text on a warning box that appears to warn the user they are viewing data that hasn't
+    been updated by the server recently, so it might be out of date.-->
+    <string name="data_stale_warning">The data you are viewing may be out of date.</string>
+
+
+    <!-- Label for Settings activity -->
+    <string name="title_settings">Settings</string>
+
+    <!-- Label for Search activity -->
+    <string name="title_search">Search for movies</string>
+
+
+
+    <!-- Shown as the title of the user's schedule for today -->
+    <string name="day_title_today">Today</string>
+
+    <!-- Shown as the title of the user's schedule for tomorrow -->
+    <string name="day_title_tomorrow">Tomorrow</string>
+
+    <!-- Shown as the title of the user's schedule for yesterday -->
+    <string name="day_title_yesterday">Yesterday</string>
+
+
+
+
+
+
+    <!-- Summary in the Settings screen for the "Show local times" option -->
+    <string name="pref_local_times_description">Use your local time instead of the conference’s local time.</string>
+
+    <!-- Title in the Settings screen for the "Show local times" option -->
+    <string name="pref_local_times_title">Show local times</string>
+
+
+
+
+
+
+
+</resources>
