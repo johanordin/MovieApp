@@ -19,6 +19,7 @@ package koma.movieapp.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,11 +66,13 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     private long mLastDataStaleUserActionTime = 0L;
     private int mHeaderColor = 0; // 0 means not customized
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_home);
+        Log.d("HomeActivity", "HomeActivity.onCreate() — says ");
 
         Toolbar toolbar = getActionBarToolbar();
 
@@ -84,6 +87,8 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
         mButterBar = findViewById(R.id.butter_bar);
         mDrawShadowFrameLayout = (DrawShadowFrameLayout) findViewById(R.id.main_content);
         registerHideableHeaderView(mButterBar);
+
+
     }
 
     @Override
@@ -140,6 +145,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+
         CollectionView collectionView = (CollectionView) findViewById(R.id.sessions_collection_view);
         if (collectionView != null) {
             enableActionBarAutoHide(collectionView);

@@ -70,11 +70,7 @@
 
     <!-- Title in the Settings screen for the "Show local times" option -->
     <string name="pref_local_times_title">Show local times</string>
-
-
-
-
-
+    <string name="navdrawer_item_settings">Settings</string>
 
 
 </resources>

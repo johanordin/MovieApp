@@ -21,6 +21,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -91,9 +92,7 @@ public abstract class BaseActivity extends ActionBarActivity implements
     protected static final int NAVDRAWER_ITEM_HOME = 0;
     protected static final int NAVDRAWER_ITEM_UPCOMING = 1;
 
-
-
-    protected static final int NAVDRAWER_ITEM_SETTINGS = 6;
+    protected static final int NAVDRAWER_ITEM_SETTINGS = 2;
 
 
     protected static final int NAVDRAWER_ITEM_INVALID = -1;
@@ -104,14 +103,17 @@ public abstract class BaseActivity extends ActionBarActivity implements
     // titles for nav drawer items
     private static final int[] NAVDRAWER_TITLE_RES_ID = new int[]{
             R.string.navdrawer_item_home,
-            R.string.navdrawer_item_upcoming
+            R.string.navdrawer_item_upcoming,
+            R.string.navdrawer_item_settings
+
     };
 
 
     // icons for navdrawer items
     private static final int[] NAVDRAWER_ICON_RES_ID = new int[]{
             R.drawable.ic_home_black_36dp,
-            R.drawable.ic_drawer_video_library
+            R.drawable.ic_drawer_video_library,
+            R.drawable.ic_drawer_settings
     };
 
 
@@ -169,6 +171,8 @@ public abstract class BaseActivity extends ActionBarActivity implements
         sp.registerOnSharedPreferenceChangeListener(this);
 
         ActionBar ab = getSupportActionBar();
+        //Log.i("MyActivity", "BaseActivity.onCreate() — says ");
+
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
@@ -177,7 +181,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         mLUtils = LUtils.getInstance(this);
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
         mNormalStatusBarColor = mThemedStatusBarColor;
-
 
     }
 
@@ -258,11 +261,11 @@ public abstract class BaseActivity extends ActionBarActivity implements
             return;
         }
         if (navDrawer != null) {
-            final View chosenAccountContentView = findViewById(R.id.chosen_account_content_view);
-            final View chosenAccountView = findViewById(R.id.chosen_account_view);
-            final int navDrawerChosenAccountHeight = getResources().getDimensionPixelSize(
-                    R.dimen.navdrawer_chosen_account_height);
-            navDrawer.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
+            //final View chosenAccountContentView = findViewById(R.id.chosen_account_content_view);
+            //final View chosenAccountView = findViewById(R.id.chosen_account_view);
+            //final int navDrawerChosenAccountHeight = getResources().getDimensionPixelSize(
+            //        R.dimen.navdrawer_chosen_account_height);
+/*            navDrawer.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
                 @Override
                 public void onInsetsChanged(Rect insets) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)
@@ -273,7 +276,7 @@ public abstract class BaseActivity extends ActionBarActivity implements
                     lp2.height = navDrawerChosenAccountHeight + insets.top;
                     chosenAccountView.setLayoutParams(lp2);
                 }
-            });
+            });*/
         }
         if (mActionBarToolbar != null) {
             mActionBarToolbar.setNavigationIcon(R.drawable.ic_drawer);
@@ -589,7 +592,9 @@ public abstract class BaseActivity extends ActionBarActivity implements
     public void onStart() {
         LOGD(TAG, "onStart");
         super.onStart();
-        // Perform one-time bootstrap setup, if needed
+
+
+//        //Perform one-time bootstrap setup, if needed
 //        if (!PrefUtils.isDataBootstrapDone(this) && mDataBootstrapThread == null) {
 //            LOGD(TAG, "One-time data bootstrap not done yet. Doing now.");
 //            performDataBootstrap();
@@ -692,8 +697,12 @@ public abstract class BaseActivity extends ActionBarActivity implements
 
 
     private View makeNavDrawerItem(final int itemId, ViewGroup container) {
+
+        Log.d("BaseActivity", "BaseActivity.makeNavDrawerItem() — says ");
+
         boolean selected = getSelfNavDrawerItem() == itemId;
         int layoutToInflate = 0;
+
         if (itemId == NAVDRAWER_ITEM_SEPARATOR) {
             layoutToInflate = R.layout.navdrawer_separator;
         } else if (itemId == NAVDRAWER_ITEM_SEPARATOR_SPECIAL) {
@@ -715,17 +724,22 @@ public abstract class BaseActivity extends ActionBarActivity implements
                 NAVDRAWER_TITLE_RES_ID[itemId] : 0;
         // set icon and text
         iconView.setVisibility(iconId > 0 ? View.VISIBLE : View.GONE);
+
         if (iconId > 0) {
             iconView.setImageResource(iconId);
         }
+
         titleView.setText(getString(titleId));
         formatNavDrawerItem(view, itemId, selected);
+
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onNavDrawerItemClicked(itemId);
             }
         });
+
+        LOGD(TAG, "BaseActivity - End of makeNavDrawer" + itemId);
         return view;
     }
 
