@@ -59,7 +59,7 @@ env:
     - ANDROID_HOME=${TRAVIS_BUILD_DIR}/android-sdk
     - PATH=${GRADLE_USER_HOME}/bin/:${ANDROID_HOME}/:${ANDROID_HOME}/tools/:${ANDROID_HOME}/platform-tools/:${PATH}
     - BUILD_TOOLS=build-tools-21.1.1
-    - MOBI_MOD_NAME=android
+    - MOBI_MOD_NAME=app
 
   matrix:
     # - AVD_TARGET=android-15  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
