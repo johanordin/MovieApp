@@ -103,6 +103,7 @@ before_install:
   # Comment out the line below to add Disable Pre-dexing option to build matrix and gradle commands.
   - 'if [[ "${ARGS:-}" == *-PdisablePreDex* ]]; then export DISABLE_PREDEX="-PdisablePreDex"; fi'
   # Comment out the line below to custom the app module name. Required to show logs of your app.
+  - 'export MOD_NAME=`echo $MOBI_MOD_NAME`'
   # TODO: Extend to other APIs
   - export AVD_TARGET_DIR="$AVD_TARGET"
   # - 'if [[ $AVD_TARGET == "Google Inc.:Google APIs:21" ]]; then AVD_TARGET_DIR="android-21"; fi'
