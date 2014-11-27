@@ -60,7 +60,6 @@ env:
     - PATH=${GRADLE_USER_HOME}/bin/:${ANDROID_HOME}/:${ANDROID_HOME}/tools/:${ANDROID_HOME}/platform-tools/:${PATH}
     - BUILD_TOOLS=build-tools-21.1.1
     - MOBI_MOD_NAME=android
-    - WEAR_MOD_NAME=Wearable
 
   matrix:
     # - AVD_TARGET=android-15  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
@@ -76,18 +75,12 @@ env:
     - AVD_TARGET=android-19  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
     - AVD_TARGET=android-21  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
 
-    # TODO: Include x86 and x86_64 ABIs, google_apis and android-wear.
-    # - AVD_TARGET=android-21  AVD_ABI=x86  AVD_TAG=default  ARGS='-PdisablePreDex'
-    # - AVD_TARGET=android-21  AVD_ABI=x86_64  AVD_TAG=default  ARGS='-PdisablePreDex'
-    #- AVD_TARGET='Google Inc.:Google APIs:21'  AVD_ABI=armeabi-v7a  AVD_TAG=google_apis  ARGS='-PdisablePreDex'
-    # - AVD_TARGET=android-20  AVD_ABI=armeabi-v7a  AVD_TAG=android-wear  ARGS='-PdisablePreDex'
 
 matrix:
   allow_failures:
     # - env: AVD_TARGET=android-21  AVD_ABI=x86  AVD_TAG=default  ARGS='-PdisablePreDex'
     # - env: AVD_TARGET=android-21  AVD_ABI=x86_64  AVD_TAG=default  ARGS='-PdisablePreDex'
     #- env: AVD_TARGET='Google Inc.:Google APIs:21'  AVD_ABI=armeabi-v7a  AVD_TAG=google_apis  ARGS='-PdisablePreDex'
-    # - env: AVD_TARGET=android-20  AVD_ABI=armeabi-v7a  AVD_TAG=android-wear  ARGS='-PdisablePreDex'
   # Disabled until https://github.com/travis-ci/travis-ci/issues/1696 is fixed. Avoid notifications.
   # fast_finish: true
 
@@ -147,7 +140,6 @@ before_install:
   - echo y | android update sdk -u -t tool || true
   - echo y | android update sdk -u -t platform-tool || true
   - echo y | android update sdk -a -u -t $BUILD_TOOLS || true
-    #- echo y | android update sdk -a -u -t android-20,sys-img-armeabi-v7a-android-wear-20 || true
   - echo y | android update sdk -a -u -t android-21,sys-img-armeabi-v7a-android-21 || true
   - echo y | android update sdk -u -t extra-android-m2repository,extra-android-support || true
     #- echo y | android update sdk -u -t extra-google-m2repository,extra-google-google_play_services || true
@@ -215,9 +207,6 @@ install:
   - ./gradlew androidDependencies
   - ./gradlew -q :${MOBI_MOD_NAME}:dependencies
     #- ./gradlew -q :${MOBI_MOD_NAME}:dependencyInsight --dependency guava --configuration compile
-    #- ./gradlew -q :${WEAR_MOD_NAME}:dependencies
-  - ./gradlew -q :${WEAR_MOD_NAME}:dependencyInsight --dependency support-v4 --configuration compile
-
   - echo 'CLEAN PROJECT'
   # Comment out the line below to prepare the Debug and DebugTest project sources.
   - ./gradlew clean generateDebugSources generateDebugTestSources
@@ -269,8 +258,6 @@ script:
   - ./gradlew :${MOD_NAME:-app}:installDebug ${DISABLE_PREDEX:-}
 
   # - echo 'BUILD RELEASE AND TEST'
-  # Comment out the line below to prepare the Release project sources (predex wearable, be aware).
-  # - ./gradlew generateReleaseSources ${DISABLE_PREDEX:-}
   # Comment out the line below to assemble this project for Build 'release'
   # - ./gradlew assembleRelease  ${DISABLE_PREDEX:-}
   # Comment out the line below to run all device checks on currently connected devices
@@ -289,7 +276,6 @@ after_failure:
   # TODO Fix dependencies and delete this
   - 'cat ${TRAVIS_BUILD_DIR}/${MOD_NAME}/build/intermediates/tmp/dex/debug/libraryList.txt'
   - 'cat ${TRAVIS_BUILD_DIR}/${MOBI_MOD_NAME}/build/intermediates/tmp/dex/debug/inputList.txt'
-  - 'cat ${TRAVIS_BUILD_DIR}/${WEAR_MOD_NAME}/build/intermediates/tmp/dex/debug/inputList.txt'
 
 after_success:
   - echo 'SUCCESS'
