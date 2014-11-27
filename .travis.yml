@@ -1,24 +1,393 @@
+# Copyright 2014 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
+# THE BUILD MATRIX
+# ----------------
+# Travis CI will run your tests against a matrix of all possible combinations for all your commits.
+# See The Build Matrix: http://docs.travis-ci.com/user/build-configuration/#The-Build-Matrix
+#
+# If you want to skip a build, add [skip ci] somewhere in the commit message and will be ignored.
+# See Skip a Build: http://docs.travis-ci.com/user/how-to-skip-a-build/
+#
+# If you define language: android, env and jdk can be given as arrays to construct the build matrix.
+# See Building an Android Project (beta): http://docs.travis-ci.com/user/languages/android/
+#
+# If 'jdk:' key is not found, Travis-ci uses one jdk by default but you can use more than one here.
+# See multiples JDKs: http://docs.travis-ci.com/user/languages/java/#Testing-Against-Multiple-JDKs
+#
+# If you want to add env variables that are global to the matrix, you can use the global key.
+# See Global Variables: http://docs.travis-ci.com/user/environment-variables/#Global-Variables
+#
+# If ARGS='-PdisablePreDex' is found on a matrix row, pre-dexing is disabled improving performance.
+# See Improve performance on CI builds: http://tools.android.com/tech-docs/new-build-system/tips
+#
+# If you define rows that are allowed to fail, they won't cause your build to be shown as failed.
+# See Allow Fail: http://docs.travis-ci.com/user/build-configuration/#Rows-That-are-Allowed-To-Fail
+#
+# If fast-finishing is true, builds will finish when the only jobs left allow failures or one fails.
+# See Fast Finishing: http://docs.travis-ci.com/user/build-configuration/#Fast-finishing
+
+
+
 language: android
-android:
-  components:
-    # Uncomment the lines below if you want to
-    # use the latest revision of Android SDK Tools
-    # - platform-tools
+
+# TODO: test cache option See http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: false
+
+jdk:
+  # - openjdk7
+  # - oraclejdk8
+  - oraclejdk7
+
+env:
+  global:
+    - GRADLE_USER_HOME=${TRAVIS_BUILD_DIR}/gradle
+   # - ANDROID_HOME=/usr/local/android-sdk
+    - ANDROID_HOME=${TRAVIS_BUILD_DIR}/android-sdk
+    - PATH=${GRADLE_USER_HOME}/bin/:${ANDROID_HOME}/:${ANDROID_HOME}/tools/:${ANDROID_HOME}/platform-tools/:${PATH}
+    - BUILD_TOOLS=build-tools-21.1.1
+    - MOBI_MOD_NAME=app
+
+  matrix:
+    # - AVD_TARGET=android-15  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-16  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-17  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-18  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-19  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-21  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS=''
+    # - AVD_TARGET=android-15  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+    # - AVD_TARGET=android-16  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+    # - AVD_TARGET=android-17  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+    - AVD_TARGET=android-18  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+    - AVD_TARGET=android-19  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+    - AVD_TARGET=android-21  AVD_ABI=armeabi-v7a  AVD_TAG=default  ARGS='-PdisablePreDex'
+
+
+matrix:
+  allow_failures:
+    # - env: AVD_TARGET=android-21  AVD_ABI=x86  AVD_TAG=default  ARGS='-PdisablePreDex'
+    # - env: AVD_TARGET=android-21  AVD_ABI=x86_64  AVD_TAG=default  ARGS='-PdisablePreDex'
+    #- env: AVD_TARGET='Google Inc.:Google APIs:21'  AVD_ABI=armeabi-v7a  AVD_TAG=google_apis  ARGS='-PdisablePreDex'
+  # Disabled until https://github.com/travis-ci/travis-ci/issues/1696 is fixed. Avoid notifications.
+  # fast_finish: true
+
+notifications:
+  email: false
+
+
+
+# THE BUILD LIFECYCLE
+# -------------------
+# Travis CI uses virtual machine snapshotting to make sure no state is left between builds.
+# Check Travis build lifecycle http://docs.travis-ci.com/user/build-configuration/#Build-Lifecycle
+# Check http://docs.travis-ci.com/user/customizing-the-build/#Customizing-the-Installation-Step
+
+before_install:
+  - echo 'EXPORT VARIABLES'
+  # Check Environment variables http://docs.travis-ci.com/user/ci-environment/#Environment-variables
+  # Check bash syntax: http://www.gnu.org/software/bash/manual/bashref.html#Lists
+  # Check Gradle props: http://www.gradle.org/docs/current/userguide/tutorial_this_and_that.html
+  # Comment out the line below to add Disable Pre-dexing option to build matrix and gradle commands.
+  - 'if [[ "${ARGS:-}" == *-PdisablePreDex* ]]; then export DISABLE_PREDEX="-PdisablePreDex"; fi'
+  # Comment out the line below to custom the app module name. Required to show logs of your app.
+  - 'export MOD_NAME=`echo $MOBI_MOD_NAME`'
+  # TODO: Extend to other APIs
+  - export AVD_TARGET_DIR="$AVD_TARGET"
+  # - 'if [[ $AVD_TARGET == "Google Inc.:Google APIs:21" ]]; then AVD_TARGET_DIR="android-21"; fi'
+  # Comment out the line below to custom AVD name. Defaults to test if not used (:- ads default '').
+  - 'export AVD_NAME="${AVD_TARGET_DIR}-${AVD_TAG:-default}-${AVD_ABI}-${RANDOM:-}${DISABLE_PREDEX:-}"'
+  # Comment out the line below to custom the avd path. Defaults to avds/test if AVD_NAME is not set.
+  - 'mkdir avds; export AVD_PATH="${TRAVIS_BUILD_DIR:-.}/avds/${AVD_NAME:-test}"; echo "$AVD_PATH"'
+
+  # - echo 'PREPARE DEPENDENCIES'
+  # Use this to prepare the system to install prerequisites or dependencies e.g. sudo apt-get update
+  # - sudo apt-get --yes --force-yes update || true
+
+  # TODO: Delete this work around after fixed the issue about SDK location and the permissions.
+  # Problem: Preinstalled SDK v.23.0.2 on /usr/local... Sudo not allowed by Travis CI using cache.
+  # We need update tools to v.23.0.5 and so we need to use tools/android to update his own folder.
+  # tools/android update try to move his own folder to a tmp folder without permissions and fails.
+  # One solution is to copy the SDK to a /home... folder so we have the required permissions.
+  # And we don't need reinstall already downloaded components as android platforms 10,15..19.
+  # Really I didn't do it before for it. Propose to Travis CI to move it to user home by default.
+  # See https://github.com/travis-ci/travis-cookbooks/blob/master/ci_environment/android-sdk/attributes/default.rb#L6
+  - cp -R /usr/local/android-sdk-23.0.2 ./android-sdk
+
+  - echo 'BEFORE UPDATE SDK'
+  # Comment out the lines below to list suggested Android SDK components.
+  - android list sdk -e || true
+  # Comment out the lines below to list available Android SDK components.
+  - android list sdk -a -e || true
+  # Comment out the lines below to list available AVDs, Android targets and device definitions.
+  - android list avd -c || true
+  - android list target -c || true
+  - android list device -c || true
+
+  - echo 'UPDATE SDK'
+  # Comment out the lines below to update components when a new version is suggested. No --all flag.
+  - echo y | android update sdk -u -t tool || true
+  - echo y | android update sdk -u -t platform-tool || true
+  - echo y | android update sdk -a -u -t $BUILD_TOOLS || true
+  - echo y | android update sdk -a -u -t android-21,sys-img-armeabi-v7a-android-21 || true
+  - echo y | android update sdk -u -t extra-android-m2repository,extra-android-support || true
+    #- echo y | android update sdk -u -t extra-google-m2repository,extra-google-google_play_services || true
+    #- echo y | android update sdk -a -u -t addon-google_apis-google-21 || true
+    #- echo y | android update sdk -a -u -t sys-img-armeabi-v7a-addon-google_apis-google-21 || true
+
+  - echo 'AFTER UPDATE SDK'
+  # Comment out the line below to list suggested Android SDK components. Check remaining entries.
+  - android list sdk -e || true
+  # Comment out the line below to list available Android SDK components. Check new entries.
+  - android list sdk -a -e || true
+  # Comment out the line below to list available AVDs, Android targets and device definitions.
+  - android list || true
+  # Comment out the line below to check suggested components by filter (exclude doc, sample, source)
+  - android update sdk -u -n -t platform,system-image,add-on,extra || true
+
+  - echo 'SYSTEM IMAGE PROPERTIES'
+  # Comment out the lines below to show system image properties
+  - 'echo ${ANDROID_HOME}/system-images/${AVD_TARGET_DIR}/${AVD_TAG}/${AVD_ABI}'
+  - 'ls ${ANDROID_HOME}/system-images/${AVD_TARGET_DIR}/${AVD_TAG}/${AVD_ABI} -al || true'
+  - 'cat ${ANDROID_HOME}/system-images/${AVD_TARGET_DIR}/${AVD_TAG}/${AVD_ABI}/build.prop || true'
+
+  - echo 'DEFAULT SCRIPTS'
+  # Comment out the lines below to check default android scripts and PATH
+  - echo "$PATH"
+  - ls /usr/local/bin -Al
+  - cat /usr/local/bin/android-accept-licenses
+  - cat /usr/local/bin/android-update-sdk
+  - cat /usr/local/bin/android-wait-for-emulator
+
+install:
+  # - echo 'SKIP INSTALL STAGE'
+  # Check install section: http://docs.travis-ci.com/user/build-configuration/#install
+  # If you'd like to skip the install stage entirely, set it to true and nothing will be run.
+  # - true
+
+  # - echo 'INSTALL DEPENDENCIES'
+  # Otherwise use this to install any prerequisites or dependencies necessary to run your build.
+  # - 'if [[ "${AVD_ABI:-}" == *x86* ]]; then sudo apt-get --yes --force-yes install kvm; ls /dev/kvm -al || true ; fi'
+
+  # - echo 'CREATE & START AVD'
+  # Check manage avds: http://developer.android.com/tools/devices/managing-avds-cmdline.html
+  # Check android create avd: http://developer.android.com/tools/help/android.html
+  # TODO: Revise bash syntax used here. Add -d "Android Wear Round".
+  - 'echo no | android create avd --force -n "${AVD_NAME:-test}" -t "${AVD_TARGET}" -b ${AVD_ABI:-} -g ${AVD_TAG:-default} -p ${AVD_PATH:-.}'
+  # TODO: Add support for multiple avds, so we can test mobile and wearable at the same time.
+  - 'echo "${AVD_PATH:-.}/config.ini:"; cat "${AVD_PATH:-.}/config.ini" || true'
+  # Check emulator: http://developer.android.com/tools/help/emulator.html#startup-options
+  - 'emulator -avd "${AVD_NAME:-test}" -no-skin -no-audio -no-window &'
+
+  - echo 'WAIT FOR DEVICE'
+  # Check adb commands: http://developer.android.com/tools/help/adb.html
+  # Comment out the line below to block execution until the emulator is online (device state).
+  - adb wait-for-device
+
+  - echo 'GRADLE WRAPPER'
+  # Check Build with Gradle: http://developer.android.com/sdk/installing/studio-build.html
+  # Check Gradle command line: http://www.gradle.org/docs/current/userguide/gradle_command_line.html
+  # Comment out the line below to set executable permission, download gradle and show the version.
+  - chmod +x ./gradlew; ls -l gradlew; ./gradlew -version
+
+  - echo 'ANDROID DEPENDENCIES'
+  # Travis-ci downloads gradle first time is called and it downloads the project dependencies.
+  # Comment out the line below to download and show the android project dependencies.
+  - ./gradlew androidDependencies
+  - ./gradlew -q :${MOBI_MOD_NAME}:dependencies
+    #- ./gradlew -q :${MOBI_MOD_NAME}:dependencyInsight --dependency guava --configuration compile
+  - echo 'CLEAN PROJECT'
+  # Comment out the line below to prepare the Debug and DebugTest project sources.
+  - ./gradlew clean generateDebugSources generateDebugTestSources
+
+  - echo 'PREPARE PROJECT'
+  # Comment out the line below to prepare the Debug and DebugTest project sources.
+  - ./gradlew compileDebugSources compileDebugTestSources
+
+before_script:
+  # Use this to prepare your build for testing. You can also define scripts to be run before script.
+  # Check http://docs.travis-ci.com/user/build-configuration/#before_script%2C-after_script
+
+  - echo 'WAIT FOR EMULATOR'
+  # Check emulator help: http://developer.android.com/tools/help/emulator.html
+  # Check key events reference: http://developer.android.com/reference/android/view/KeyEvent.html
+  # TODO: Improve wait_for_emulator.sh script. Support more than one emulator simultaneously.
+  # Comment out the lines below to execute the script and send input key constant 'Menu key'.
+  - chmod +x ./scripts/wait_for_emulator.sh; ./scripts/wait_for_emulator.sh
+  - adb shell input keyevent 82 &
+
+  - echo 'LOGCAT'
+  # Check logcat debug output: http://developer.android.com/tools/help/logcat.html
+  # Check debugging log: http://developer.android.com/tools/debugging/debugging-log.html
+  # Comment the lines belows to debug output and redirect it to a file. Custom tags for your app.
+  - adb -e logcat *:W | tee logcat.log > /dev/null 2>&1 &
+
+  # - echo "PRE-DEXING ${DISABLE_PREDEX}"
+  - echo 'SCRIPT'
+
+script:
+  # Added disable pre-dexing option to build matrix. Code checks if ARGS contains '-PdisablePreDex':
+  # If $DISABLE_PREDEX option is added on gradlew, pre-dexing is disabled on build server.
+  # Otherwise pre-dexing is enabled. It's the default option if ARGS or DISABLE_PREDEX is not found.
+  # http://tools.android.com/tech-docs/new-build-system/tips#TOC-Improving-Build-Server-performance.
+
+  # - echo 'DEFAULT TRAVIS BUILD'
+  # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
+  # Remember to add DISABLE_PREDEX flag always gradle tasks perform predex to avoid dexing errors.
+  # - ./gradlew build connectedCheck ${DISABLE_PREDEX:-}
+
+  # OR
+
+  # - echo 'BUILD DEBUG AND TEST'
+  # Comment out the lines below to assemble the Debug build and the Test build for the Debug build
+  - ./gradlew assembleDebug ${DISABLE_PREDEX:-}
+  # - ./gradlew assembleDebugTest ${DISABLE_PREDEX:-}
+  # Comment out the line below to install and run tests for Build 'debug' on connected devices
+  # - ./gradlew connectedAndroidTest ${DISABLE_PREDEX:-}
+  - ./gradlew :${MOD_NAME:-app}:installDebug ${DISABLE_PREDEX:-}
+
+  # - echo 'BUILD RELEASE AND TEST'
+  # Comment out the line below to assemble this project for Build 'release'
+  # - ./gradlew assembleRelease  ${DISABLE_PREDEX:-}
+  # Comment out the line below to run all device checks on currently connected devices
+  - ./gradlew connectedCheck ${DISABLE_PREDEX:-}
+
+after_failure:
+  - echo 'FAILURE'
+  # Check apt configuration: http://docs.travis-ci.com/user/ci-environment/#apt-configuration
+  # Comment out the lines below to show log about tests with app name customized on exports section.
+  # TODO: look for preinstalled alternative, Travis CI doesn't allow to  use sudo when we use cache.
+  # - sudo apt-get install -qq lynx
+  # - 'export LOG_DIR=${TRAVIS_BUILD_DIR}/${MOD_NAME}/build/outputs/reports/androidTests/connected/'
+  # - 'lynx --dump ${LOG_DIR}com.android.builder.testing.ConnectedDevice.html > myConnectedDevice.log'
+  # - 'lynx --dump ${LOG_DIR}com.android.builder.testing.html > myTesting.log'
+  # - 'for file in *.log; do echo "$file"; echo "====================="; cat "$file"; done || true'
+  # TODO Fix dependencies and delete this
+  - 'cat ${TRAVIS_BUILD_DIR}/${MOD_NAME}/build/intermediates/tmp/dex/debug/libraryList.txt'
+  - 'cat ${TRAVIS_BUILD_DIR}/${MOBI_MOD_NAME}/build/intermediates/tmp/dex/debug/inputList.txt'
+
+after_success:
+  - echo 'SUCCESS'
+
+after_script:
+  # Check http://docs.travis-ci.com/user/build-configuration/#Build-Lifecycle
+  # Test result is exported to TRAVIS_TEST_RESULT which you can use in commands run in after_script.
+  # Standard Unix exit code of '0' means the build passed; everything else is treated as failure.
+  # - 'if [[ "${TRAVIS_TEST_RESULT}" == "0" ]]; then echo "BUILD SUCCESSFUL"; else echo "ERROR"; fi'
+  # Uncomment the line below to kill adb and show logcat output.
+  - echo " LOGCAT "; echo "========"; cat logcat.log; pkill -KILL -f adb
+
+
+
+# THE SETUP STAGE
+# ---------------
+# If you comment out this section, Travis CI will install for you the components you define here.
+# Check your project requirements and the components included by default on Travis-ci VM images.
+# Check required: https://github.com/google/iosched/blob/master/doc/BUILDING.md
+# Check defaults: http://docs.travis-ci.com/user/languages/android/#Pre-installed-components
+
+# android:
+  # components:
+    # Check Android SDK tools: http://developer.android.com/tools/sdk/tools-notes.html
+    # Check Android SDK Platform-tools: http://developer.android.com/tools/revisions/platforms.html
+    # Comment the lines below if the latest revisions of Android SDK Tools are included by default.
     # - tools
+    # - platform-tools
 
-    # The BuildTools version used by your project
-    - build-tools-21.0.2
+    # Check BuildTools: http://developer.android.com/tools/revisions/build-tools.html
+    # Comment the lines below if the BuildTools required for building your project are included.
+    # - build-tools-21.1.1
 
-    # The SDK version used to compile your project
-    - android-21
+    # Check APIs: http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels
+    # Comment the lines below if the SDK versions used to compile your project are already included.
+    # - android-20
+    # - android-21
 
-    # Additional components
-    - extra-google-google_play_services
-    - extra-google-m2repository
-    - extra-android-m2repository
-    - addon-google_apis-google-19
+    # Check extras: http://developer.android.com/sdk/installing/adding-packages.html#GetSupportLib
+    # Comment the lines below if the latest Android extras are included or not required.
+    # - extra-android-m2repository
+    # - extra-android-support
 
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-19
-    - sys-img-x86-android-17
+    # Check more extras: http://developer.android.com/sdk/installing/adding-packages.html#GetGoogle
+    # Comment the lines below if the latest Google extras are included or not required.
+    # - extra-google-m2repository
+    # - extra-google-google_play_services
+
+    # Check possible addons, you can use the commandline: android list sdk --no-ui --all --extended
+    # Comment the lines below if the latest Google apis addons are included or not required.
+    # - addon-google_apis_x86-google-19
+    # - addon-google_apis-google-19
+    # - addon-google_apis-google-21
+
+    # Check get tools: http://developer.android.com/sdk/installing/adding-packages.html#GetTools
+    # Comment the lines below if the latest images are included or you don't need to run emulator/s.
+    # - sys-img-armeabi-v7a-android-21
+    # - sys-img-armeabi-v7a-android-wear-20
+    # - sys-img-x86-android-21
+    # - sys-img-x86_64-android-21
+    # - sys-img-armeabi-v7a-addon-google_apis-google-21
+
+  # licenses:
+    # Check licenses: http://docs.travis-ci.com/user/languages/android/#Dealing-with-Licenses
+    # By default Travis will accept all the licenses, but it's also possible to define a white list:
+    # White list current android-sdk-license revision.
+    # - 'android-sdk-license-5be876d5'
+    # White list all android-sdk-license revisions.
+    # - 'android-sdk-license-.+'
+    # White list all the licenses.
+    # - '.+'
+
+
+# If you need validate your Travis CI configuration, you can use the Travis CI validation Web App.
+# See Travis WebLint: http://lint.travis-ci.org/
+
+  # @--@--@--@--@
+  # @-- TODO: --@
+  # @--@--@--@--@
+  #
+  # com.android.ddmlib.InstallException. connectedAndroidTest run tests failed, (exceed timeout).
+  # @-- Issue: https://code.google.com/p/android/issues/detail?id=69735  (now optimize/reload job).
+  # @-- 144.6 --@ Solution: https://android-review.googlesource.com/#/c/112780/ (inc. install time).
+  #
+  # W/MediaScanner(  546): Error opening directory '/mnt/sdcard/', skipping: Permission denied.
+  # E/ThrottleService(  278): Error reading data file
+  # Check http://stackoverflow.com/questions/11788459/apps-not-running-on-android-emulator-device
+  # Check http://developer.android.com/tools/devices/emulator.html#sdcard
+  # Check http://developer.android.com/tools/help/mksdcard.html
+  # Check http://developer.android.com/tools/help/emulator.html#startup-options
+  #
+  # Error: Avoid non-default constructors in fragments: use a default constructor
+  # plus Fragment#setArguments(Bundle) instead [ValidFragment]
+  #
+  # LoggedErrorException: Failed to run command:  dex/debug libraryList.txt Error Code: 2 Output:
+  # UNEXPECTED TOP-LEVEL EXCEPTION: com.android.dex.DexIndexOverflowException:
+  # method ID not in [0, 0xffff]: 65536
+  # Check classes.dex method count helper: https://gist.github.com/JakeWharton/6002797
+  # apk= /path/to/android-debug.apk
+  # unzip -p $apk classes.dex | head -c 92 | tail -c 4 | hexdump -e "1/4 '%d\n"'
+  # TODO: Count by package. 32K Before changes, proguard on, release. 64k after, no proguard, debug.
+  # TODO: Use proguard for all buids: https://github.com/pocorall/scaloid/issues/86
+  # Check multiple dex file error: http://stackoverflow.com/questions/25984426
+  # ./gradlew -q :android:dependencies
+  # Check exclude module: http://stackoverflow.com/questions/25993974/
+  # ./gradlew -q :android:dependencyInsight --dependency guava --configuration compile
+  #
+  # TODO: Fix increased method count before adding multi-dex support.
+  # TODO: Add Multi-Dex support. Requires Build-Tools 21.1.0, and Support repository rev 8.
+  # multiDexEnabled = true on defaultConfig, ProductFlavor, or BuildType, See multiDex samples.
+  # Works for minSdkVersion 21+ (native) or <21 (legacy mode, com.android.support:multidex:1.0.0)
+  #
+
+

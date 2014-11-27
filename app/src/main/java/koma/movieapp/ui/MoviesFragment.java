@@ -175,11 +175,11 @@ public class MoviesFragment extends Fragment implements
         reloadMovieData(false);
     }
 
-
+    // TODO fix reload
     private void reloadMovieData(boolean fullReload) {
         LOGD(TAG, "Reloading session data: " + (fullReload ? "FULL RELOAD" : "light refresh"));
         mSessionDataIsFullReload = fullReload;
-        getLoaderManager().restartLoader(mSessionQueryToken, mArguments, MoviesFragment.this);
+        //getLoaderManager().restartLoader(mSessionQueryToken, mArguments, MoviesFragment.this);
     }
 
     @Override
