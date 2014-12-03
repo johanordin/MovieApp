@@ -41,7 +41,7 @@
                 android:id="@+id/sessions_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:layout="@layout/fragment_sessions" />
+                tools:layout="@layout/fragment_movies" />
         </koma.movieapp.ui.widget.MultiSwipeRefreshLayout>
 
         <LinearLayout style="@style/HeaderBar"

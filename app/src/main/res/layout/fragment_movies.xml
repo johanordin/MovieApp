@@ -19,7 +19,7 @@
     android:layout_height="match_parent">
 
     <koma.movieapp.ui.widget.CollectionView
-        android:id="@+id/sessions_collection_view"
+        android:id="@+id/movies_collection_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="@dimen/explore_grid_padding_half"

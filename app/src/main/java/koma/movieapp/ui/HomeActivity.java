@@ -146,7 +146,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        CollectionView collectionView = (CollectionView) findViewById(R.id.sessions_collection_view);
+        CollectionView collectionView = (CollectionView) findViewById(R.id.movies_collection_view);
         if (collectionView != null) {
             enableActionBarAutoHide(collectionView);
         }

@@ -26,42 +26,26 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.provider.BaseColumns;
 import android.support.v4.view.ViewCompat;
-import android.text.Spannable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
-import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CollectionView;
 import koma.movieapp.ui.widget.CollectionViewCallbacks;
 import koma.movieapp.ui.widget.MessageCardView;
 import koma.movieapp.util.PrefUtils;
-import koma.movieapp.util.TimeUtils;
-import koma.movieapp.util.UIUtils;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.TimeZone;
 
 import static koma.movieapp.util.LogUtils.LOGD;
@@ -69,7 +53,6 @@ import static koma.movieapp.util.LogUtils.LOGE;
 import static koma.movieapp.util.LogUtils.LOGV;
 import static koma.movieapp.util.LogUtils.LOGW;
 import static koma.movieapp.util.LogUtils.makeLogTag;
-import static koma.movieapp.util.UIUtils.buildStyledSnippet;
 
 /**
  * A {@link ListFragment} showing a list of sessions. The fragment arguments
@@ -252,9 +235,9 @@ public class MoviesFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_sessions, container, false);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_movies, container, false);
 
-        mCollectionView = (CollectionView) root.findViewById(R.id.sessions_collection_view);
+        mCollectionView = (CollectionView) root.findViewById(R.id.movies_collection_view);
         //mPreloader = new Preloader(ROWS_TO_PRELOAD);
 
         //mCollectionView.setOnScrollListener(mPreloader);
@@ -337,37 +320,23 @@ public class MoviesFragment extends Fragment implements
         outState.putParcelable(STATE_ARGUMENTS, mArguments);
     }
 
-
     // LoaderCallbacks interface
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
         Uri sessionsUri = intent.getData();
-
-
-        //TODO
         Loader<Cursor> loader = null;
-/*        if ((id == SessionsQuery.NORMAL_TOKEN || id == SessionsQuery.SEARCH_TOKEN) && sessionsUri == null) {
-            LOGD(TAG, "intent.getData() is null, setting to default sessions search");
-            sessionsUri = ScheduleContract.Sessions.CONTENT_URI;
-        }
-        Loader<Cursor> loader = null;
-        String liveStreamedOnlySelection = UIUtils.shouldShowLiveSessionsOnly(getActivity())
-                ? "IFNULL(" + ScheduleContract.Sessions.SESSION_LIVESTREAM_URL + ",'')!=''"
-                : null;
-        if (id == SessionsQuery.NORMAL_TOKEN) {
-            LOGD(TAG, "Creating sessions loader for " + sessionsUri + ", selection " + liveStreamedOnlySelection);
-            loader = new CursorLoader(getActivity(), sessionsUri, SessionsQuery.NORMAL_PROJECTION,
-                    liveStreamedOnlySelection, null, ScheduleContract.Sessions.SORT_BY_TYPE_THEN_TIME);
-        } else if (id == SessionsQuery.SEARCH_TOKEN) {
-            LOGD(TAG, "Creating search loader for " + sessionsUri + ", selection " + liveStreamedOnlySelection);
-            loader = new CursorLoader(getActivity(), sessionsUri, SessionsQuery.SEARCH_PROJECTION,
-                    liveStreamedOnlySelection, null, ScheduleContract.Sessions.SORT_BY_TYPE_THEN_TIME);
-        } else if (id == TAG_METADATA_TOKEN) {
-            LOGD(TAG, "Creating metadata loader");
-            loader = TagMetadata.createCursorLoader(getActivity());
-        }*/
+//            loader = new CursorLoader(getActivity(), sessionsUri, SessionsQuery.NORMAL_PROJECTION,
+//                    liveStreamedOnlySelection, null, ScheduleContract.Sessions.SORT_BY_TYPE_THEN_TIME);
+//
+//
+//        Uri baseUri = "http://image.tmdb.org/t/p/";
+//
+//        return new CursorLoader(getActivity(), baseUri,
+//                CONTACTS_SUMMARY_PROJECTION, select, null,
+//                Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+
 
         return loader;
     }
