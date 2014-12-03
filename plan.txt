@@ -1,0 +1,9 @@
+Starta appen
+    -> Toolbar
+    -> Navdrawer
+    -> Main - borde kunna deklarera Tmdb tmdb etc i BaseActivity
+        -> Ladda in upcoming
+            -> Ny MoviesFragment där en asykron funktion kallas i onCreate
+                -> Försök göra API-calls och skapa objekt med wrappern
+                    -> Om det lyckas, uppdatera CollectionView-objektet
+                       med updateCollectionView och prepareCollectionView.
