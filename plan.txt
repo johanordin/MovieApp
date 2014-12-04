@@ -7,3 +7,67 @@ Starta appen
                 -> Försök göra API-calls och skapa objekt med wrappern
                     -> Om det lyckas, uppdatera CollectionView-objektet
                        med updateCollectionView och prepareCollectionView.
+
+
+
+
+
+
+Laddningsordning:
+
+Appen startas
+    -> I onPostCreate kallas reloadFromArguments i SessionsFragment
+        -> Där sätts t.ex. currentUri och vilken token som används.
+           reloadSessionData kallas sedan
+            -> onCreateLoader kallas med argumenten och vilket fragment som används
+                -> returnerar en CursorLoader
+                    -> onLoadFinished
+                        -> 
+
+
+
+
+
+
+
+
+
+
+BrowseSessionsActivity.onPostCreate -> 
+    SessionsFragment.reloadFromArguments ->     // Sätt URI här?
+        SessionFragment.reloadSessionData ->    
+            SessionFragment.onCreateLoader ->
+                SessionsFragment.onLoadFinished ->
+                    
+
+
+
+
+
+
+
+En loader i MoviesFragment som sköter /movie/upcoming /movie/now_playing /movie/search
+
+en loader i MovieDetailActivity som sköter /movie/{id}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

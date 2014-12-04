@@ -44,11 +44,13 @@ public class Config {
     public static final long STALE_DATA_THRESHOLD = 7 * DAY_MILLIS;
 
 
+    public static final String TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
 
+    public static final String TMDB_API_KEY = "6933170df8ee99aaea39ffe9521bedc5";
 
     // OAuth 2.0 related config
     public static final String APP_NAME = "GoogleIO-Android";
-    public static final String API_KEY = "";
+
 
 
     private static String piece(String s, char start, char end) {

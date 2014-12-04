@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.content.AsyncTaskLoader;
 import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,13 +40,22 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
+import com.uwetrottmann.tmdb.Tmdb;
+import com.uwetrottmann.tmdb.entities.Movie;
+import com.uwetrottmann.tmdb.entities.ResultsPage;
+
+import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CollectionView;
 import koma.movieapp.ui.widget.CollectionViewCallbacks;
 import koma.movieapp.ui.widget.MessageCardView;
 import koma.movieapp.util.PrefUtils;
+import koma.movieapp.util.UIUtils;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 
 import static koma.movieapp.util.LogUtils.LOGD;
@@ -60,7 +70,7 @@ import static koma.movieapp.util.LogUtils.makeLogTag;
  * filters or a search query.
  */
 public class MoviesFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>, CollectionViewCallbacks {
+        LoaderManager.LoaderCallbacks<List<Movie>>, CollectionViewCallbacks {
 
     private static final String TAG = makeLogTag(MoviesFragment.class);
 
@@ -137,6 +147,8 @@ public class MoviesFragment extends Fragment implements
 
     };
 
+    //private Preloader mPreloader;
+
 
     public boolean canCollectionViewScrollUp() {
         return ViewCompat.canScrollVertically(mCollectionView, -1);
@@ -162,6 +174,13 @@ public class MoviesFragment extends Fragment implements
     private void reloadMovieData(boolean fullReload) {
         LOGD(TAG, "Reloading session data: " + (fullReload ? "FULL RELOAD" : "light refresh"));
         mSessionDataIsFullReload = fullReload;
+
+
+
+
+
+
+
         //getLoaderManager().restartLoader(mSessionQueryToken, mArguments, MoviesFragment.this);
     }
 
@@ -322,11 +341,14 @@ public class MoviesFragment extends Fragment implements
 
     // LoaderCallbacks interface
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle data) {
+    public Loader<List<Movie>> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
         Uri sessionsUri = intent.getData();
-        Loader<Cursor> loader = null;
+        Loader<List<Movie>> loader = null;
+
+
+        loader = new MovieListLoader(getActivity(),"search");
 //            loader = new CursorLoader(getActivity(), sessionsUri, SessionsQuery.NORMAL_PROJECTION,
 //                    liveStreamedOnlySelection, null, ScheduleContract.Sessions.SORT_BY_TYPE_THEN_TIME);
 //
@@ -342,7 +364,7 @@ public class MoviesFragment extends Fragment implements
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
 
         if (getActivity() == null) {
             return;
@@ -372,7 +394,7 @@ public class MoviesFragment extends Fragment implements
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<List<Movie>> loader) {
     }
 
     private final SharedPreferences.OnSharedPreferenceChangeListener mPrefChangeListener =
@@ -443,7 +465,7 @@ public class MoviesFragment extends Fragment implements
     }
 
 
-/*
+
     // Creates the CollectionView groups based on the cursor data.
     private CollectionView.Inventory prepareInventory() {
         LOGD(TAG, "Preparing collection view inventory.");
@@ -463,74 +485,13 @@ public class MoviesFragment extends Fragment implements
         int dataIndex = -1;
         final long now = UIUtils.getCurrentTime(mAppContext);
 
-        final boolean expandedMode = useExpandedMode();
+        //final boolean expandedMode = useExpandedMode();
+        final boolean expandedMode = true;
+
         final int displayCols = getResources().getInteger(expandedMode ?
                 R.integer.explore_2nd_level_grid_columns : R.integer.explore_1st_level_grid_columns);
         LOGD(TAG, "Using " + displayCols + " columns.");
-        mPreloader.setDisplayCols(displayCols);
-
-        while (mCursor.moveToNext()) {
-            // For each data item, we decide what group it should appear under, then
-            // we add it to that group (and create the group if it doesn't exist yet).
-
-            long sessionEnd = mCursor.getLong(mCursor.getColumnIndex(
-                    ScheduleContract.Sessions.SESSION_END));
-
-            ++dataIndex;
-            boolean showAsPast = !conferenceEnded && sessionEnd < now;
-            String groupLabel;
-
-            if (expandedMode) {
-                String tags = mCursor.getString(mCursor.getColumnIndex(ScheduleContract.Sessions.SESSION_TAGS));
-                TagMetadata.Tag groupTag = tags == null ? null
-                        : mTagMetadata.getSessionGroupTag(tags.split(","));
-                if (groupTag != null) {
-                    groupLabel = groupTag.getName();
-                } else {
-                    groupLabel = getString(R.string.others);
-                }
-                groupLabel += (showAsPast ? " (" + getString(R.string.session_finished) + ")" : "");
-            } else {
-                groupLabel = showAsPast ? getString(R.string.ended_sessions) : "";
-            }
-
-            LOGV(TAG, "Data item #" + dataIndex + ", sessionEnd=" + sessionEnd + ", groupLabel="
-                    + groupLabel + " showAsPast=" + showAsPast);
-
-            CollectionView.InventoryGroup group;
-
-            // should this item be the hero group?
-            if (!useExpandedMode() && !showAsPast && heroGroup == null) {
-                // yes, this item is the hero
-                LOGV(TAG, "This item is the hero.");
-                group = heroGroup = new CollectionView.InventoryGroup(HERO_GROUP_ID)
-                        .setDisplayCols(1)  // hero item spans all columns
-                        .setShowHeader(false).setHeaderLabel("");
-            } else {
-                // "list" and "map" are just shorthand variables pointing to the right list and map
-                ArrayList<CollectionView.InventoryGroup> list = showAsPast ? pastGroups : futureGroups;
-                HashMap<String, CollectionView.InventoryGroup> map = showAsPast ? pastGroupsByName :
-                        futureGroupsByName;
-
-                // Create group, if it doesn't exist yet
-                if (!map.containsKey(groupLabel)) {
-                    LOGV(TAG, "Creating new group: " + groupLabel);
-                    group = new CollectionView.InventoryGroup(nextGroupId++)
-                            .setDisplayCols(displayCols)
-                            .setShowHeader(!TextUtils.isEmpty(groupLabel))
-                            .setHeaderLabel(groupLabel);
-                    map.put(groupLabel, group);
-                    list.add(group);
-                } else {
-                    LOGV(TAG, "Adding to existing group: " + groupLabel);
-                    group = map.get(groupLabel);
-                }
-            }
-
-            // add this item to the group
-            LOGV(TAG, "...adding to group '" + groupLabel + "' with custom data index " + dataIndex);
-            group.addItemWithCustomDataIndex(dataIndex);
-        }
+        //mPreloader.setDisplayCols(displayCols);
 
         // prepare the final groups list
         ArrayList<CollectionView.InventoryGroup> groups = new ArrayList<CollectionView.InventoryGroup>();
@@ -555,7 +516,7 @@ public class MoviesFragment extends Fragment implements
         }
         return inventory;
     }
-*/
+
 
     @Override
     public View newCollectionHeaderView(Context context, ViewGroup parent) {
@@ -831,6 +792,195 @@ public class MoviesFragment extends Fragment implements
 
 
     private void animateSessionAppear(final View view) {
+    }
+
+//    private class Preloader extends ListPreloader<String> {
+//
+//        private int[] photoDimens;
+//        private int displayCols;
+//
+//        public Preloader(int maxPreload) {
+//            super(maxPreload);
+//        }
+//
+//        public void setDisplayCols(int displayCols) {
+//            this.displayCols = displayCols;
+//        }
+//
+//        public boolean isDimensSet() {
+//            return photoDimens != null;
+//        }
+//
+//        public void setDimens(int width, int height) {
+//            if (photoDimens == null) {
+//                photoDimens = new int[] { width, height };
+//            }
+//        }
+//
+//        @Override
+//        protected int[] getDimensions(String s) {
+//            return photoDimens;
+//        }
+//
+//        @Override
+//        protected List<String> getItems(int start, int end) {
+//            // Our start and end are rows, we need to adjust them into data columns
+//            // The keynote is 1 row with 1 data item, so we need to adjust.
+//            int keynoteDataOffset = (displayCols - 1);
+//            int dataStart = start * displayCols - keynoteDataOffset;
+//            int dataEnd = end * displayCols - keynoteDataOffset;
+//            List<String> urls = new ArrayList<String>();
+//            if (mCursor != null) {
+//                for (int i = dataStart; i < dataEnd; i++) {
+//                    if (mCursor.moveToPosition(i)) {
+//                        urls.add(mCursor.getString(SessionsQuery.PHOTO_URL));
+//                    }
+//                }
+//            }
+//            return urls;
+//        }
+//
+//        @Override
+//        protected GenericRequestBuilder getRequestBuilder(String url) {
+//            return mImageLoader.beginImageLoad(url, null, true /*crop*/);
+//        }
+//    }
+
+    private static class MovieListLoader extends AsyncTaskLoader<List<Movie>> {
+
+        List<Movie> mMovies;
+
+        Uri uri;
+
+        Tmdb tmdb;
+
+        public MovieListLoader(Context context, String apiCall) {
+            super(context);
+
+            // Retrieve the package manager for later use; note we don't
+            // use 'context' directly but instead the save global application
+            // context returned by getContext().
+
+            tmdb = new Tmdb();
+            tmdb.setApiKey(Config.TMDB_API_KEY);
+
+        }
+
+        /**
+         * This is where the bulk of our work is done.  This function is
+         * called in a background thread and should generate a new set of
+         * data to be published by the loader.
+         */
+        @Override
+        public List<Movie> loadInBackground() {
+            // Retrieve all known applications.
+
+            List<Movie> movieList = null;
+
+            final Context context = getContext();
+
+            // Done!
+            return movieList;
+        }
+
+        /**
+         * Called when there is new data to deliver to the client.  The
+         * super class will take care of delivering it; the implementation
+         * here just adds a little more logic.
+         */
+        @Override
+        public void deliverResult(List<Movie> movies) {
+            if (isReset()) {
+                // An async query came in while the loader is stopped.  We
+                // don't need the result.
+                if (movies != null) {
+                    onReleaseResources(movies);
+                }
+            }
+            List<Movie> oldMovies = mMovies;
+            mMovies = movies;
+
+            if (isStarted()) {
+                // If the Loader is currently started, we can immediately
+                // deliver its results.
+                super.deliverResult(movies);
+            }
+
+            // At this point we can release the resources associated with
+            // 'oldMovies' if needed; now that the new result is delivered we
+            // know that it is no longer in use.
+            if (oldMovies != null) {
+                onReleaseResources(oldMovies);
+            }
+        }
+
+        /**
+         * Handles a request to start the Loader.
+         */
+        @Override
+        protected void onStartLoading() {
+            if (mMovies != null) {
+                // If we currently have a result available, deliver it
+                // immediately.
+                deliverResult(mMovies);
+            }
+
+
+            if (takeContentChanged() || mMovies == null) {
+                // If the data has changed since the last time it was loaded
+                // or is not currently available, start a load.
+                forceLoad();
+            }
+        }
+
+        /**
+         * Handles a request to stop the Loader.
+         */
+        @Override
+        protected void onStopLoading() {
+            // Attempt to cancel the current load task if possible.
+            cancelLoad();
+        }
+
+        /**
+         * Handles a request to cancel a load.
+         */
+        @Override
+        public void onCanceled(List<Movie> movies) {
+            super.onCanceled(movies);
+
+            // At this point we can release the resources associated with 'movies'
+            // if needed.
+            onReleaseResources(movies);
+        }
+
+        /**
+         * Handles a request to completely reset the Loader.
+         */
+        @Override
+        protected void onReset() {
+            super.onReset();
+
+            // Ensure the loader is stopped
+            onStopLoading();
+
+            // At this point we can release the resources associated with 'movies'
+            // if needed.
+            if (mMovies != null) {
+                onReleaseResources(mMovies);
+                mMovies = null;
+            }
+
+        }
+
+        /**
+         * Helper function to take care of releasing resources associated
+         * with an actively loaded data set.
+         */
+        protected void onReleaseResources(List<Movie> movies) {
+            // For a simple List<> there is nothing to do.  For something
+            // like a Cursor, we would close it here.
+        }
     }
 
 
