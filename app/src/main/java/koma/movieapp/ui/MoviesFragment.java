@@ -21,7 +21,6 @@ import android.app.Fragment;
 import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -43,7 +42,10 @@ import android.widget.TextView;
 import com.uwetrottmann.tmdb.Tmdb;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.ResultsPage;
+import com.uwetrottmann.tmdb.services.MoviesService;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.ListPreloader;
 import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CollectionView;
@@ -52,10 +54,14 @@ import koma.movieapp.ui.widget.MessageCardView;
 import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
 
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TimeZone;
 
 import static koma.movieapp.util.LogUtils.LOGD;
@@ -70,7 +76,7 @@ import static koma.movieapp.util.LogUtils.makeLogTag;
  * filters or a search query.
  */
 public class MoviesFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<List<Movie>>, CollectionViewCallbacks {
+        LoaderManager.LoaderCallbacks<ListIterator<Movie>>, CollectionViewCallbacks {
 
     private static final String TAG = makeLogTag(MoviesFragment.class);
 
@@ -105,6 +111,9 @@ public class MoviesFragment extends Fragment implements
     private int mSessionQueryToken;
     //private Uri mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
     private Cursor mCursor;
+
+    private ListIterator<Movie> mListIterator;
+
     private boolean mIsSearchCursor;
     private boolean mNoTrackBranding;
 
@@ -113,6 +122,7 @@ public class MoviesFragment extends Fragment implements
     // have been changed); if not, it's just a refresh because data has changed.
     private boolean mSessionDataIsFullReload = false;
 
+    private ImageLoader mImageLoader;
     private int mDefaultSessionColor;
 
     private CollectionView mCollectionView;
@@ -147,7 +157,7 @@ public class MoviesFragment extends Fragment implements
 
     };
 
-    //private Preloader mPreloader;
+    private Preloader mPreloader;
 
 
     public boolean canCollectionViewScrollUp() {
@@ -341,60 +351,49 @@ public class MoviesFragment extends Fragment implements
 
     // LoaderCallbacks interface
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, Bundle data) {
+    public Loader<ListIterator<Movie>> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
         Uri sessionsUri = intent.getData();
-        Loader<List<Movie>> loader = null;
 
+        Loader<ListIterator<Movie>> loader = null;
 
-        loader = new MovieListLoader(getActivity(),"search");
-//            loader = new CursorLoader(getActivity(), sessionsUri, SessionsQuery.NORMAL_PROJECTION,
-//                    liveStreamedOnlySelection, null, ScheduleContract.Sessions.SORT_BY_TYPE_THEN_TIME);
-//
-//
-//        Uri baseUri = "http://image.tmdb.org/t/p/";
-//
-//        return new CursorLoader(getActivity(), baseUri,
-//                CONTACTS_SUMMARY_PROJECTION, select, null,
-//                Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+        loader = new MovieListLoader(getActivity());
 
 
         return loader;
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Movie>> loader, List<Movie> data) {
+    public void onLoadFinished(Loader<ListIterator<Movie>> loader, ListIterator<Movie> data) {
 
         if (getActivity() == null) {
             return;
         }
 
-/*        int token = loader.getId();
-        LOGD(TAG, "Loader finished: " + (token == SessionsQuery.NORMAL_TOKEN ? "sessions" :
-                token == SessionsQuery.SEARCH_TOKEN ? "search" : token == TAG_METADATA_TOKEN ? "tags" :
-                        "unknown"));
-        if (token == SessionsQuery.NORMAL_TOKEN || token == SessionsQuery.SEARCH_TOKEN) {
-            if (mCursor != null && mCursor != cursor) {
-                mCursor.close();
+        int token = loader.getId();
+
+        LOGD(TAG, "Loader finished: "  + (token == NOW_PLAYING_TOKEN ? "now playing" :
+                token == UPCOMING_TOKEN ? "upcoming"  : "unknown"));
+
+
+        if (token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
+
+            if(data != null && mListIterator != data) {
+                mListIterator = null;
             }
-            mCursor = cursor;
-            mIsSearchCursor = token == SessionsQuery.SEARCH_TOKEN;
-            LOGD(TAG, "Cursor has " + mCursor.getCount() + " items. Will now update collection view.");
+
+            mListIterator = data;
+
+            LOGD(TAG, "Will now update collection view.");
             updateCollectionView();
-        } else if (token == TAG_METADATA_TOKEN) {
-            mTagMetadata = new TagMetadata(cursor);
-            cursor.close();
-            updateCollectionView();
-            mCallbacks.onTagMetadataLoaded(mTagMetadata);
-        } else {
-            LOGD(TAG, "Query complete, Not Actionable: " + token);
-            cursor.close();
-        }*/
+
+        }
+
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Movie>> loader) {
+    public void onLoaderReset(Loader<ListIterator<Movie>> loader) {
     }
 
     private final SharedPreferences.OnSharedPreferenceChangeListener mPrefChangeListener =
@@ -414,35 +413,41 @@ public class MoviesFragment extends Fragment implements
             };
 
     private void updateCollectionView() {
-        if (mCursor == null ) {
-            LOGD(TAG, "updateCollectionView: not ready yet... " + (mCursor == null ? "no cursor." :
-                    "no tag metadata."));
-            // not ready!
+
+
+        if(mListIterator == null) {
+            LOGD(TAG, "updateCollectionView: not ready yet... no iterator");
+            // not ready
             return;
         }
+
+
         LOGD(TAG, "MoviesFragment updating CollectionView... " + (mSessionDataIsFullReload ?
                 "(FULL RELOAD)" : "(light refresh)"));
-        mCursor.moveToPosition(-1);
-        int itemCount = mCursor.getCount();
 
-        //mMaxDataIndexAnimated = 0;
+
+        mMaxDataIndexAnimated = 0;
 
         CollectionView.Inventory inv;
-        if (itemCount == 0) {
+
+        if(mListIterator.hasNext()) {
+            hideEmptyView();
+            inv = prepareInventory();
+        } else {
             showEmptyView();
             inv = new CollectionView.Inventory();
-        } else {
-            hideEmptyView();
-            //inv = prepareInventory();
         }
+
 
         Parcelable state = null;
         if (!mSessionDataIsFullReload) {
             // it's not a full reload, so we want to keep scroll position, etc
             state = mCollectionView.onSaveInstanceState();
         }
+
+
         mCollectionView.setCollectionAdapter(this);
-        //mCollectionView.updateInventory(inv, mSessionDataIsFullReload);
+        mCollectionView.updateInventory(inv, mSessionDataIsFullReload);
         if (state != null) {
             mCollectionView.onRestoreInstanceState(state);
         }
@@ -469,6 +474,44 @@ public class MoviesFragment extends Fragment implements
     // Creates the CollectionView groups based on the cursor data.
     private CollectionView.Inventory prepareInventory() {
         LOGD(TAG, "Preparing collection view inventory.");
+
+
+        ArrayList<CollectionView.InventoryGroup> mainGroup =
+                new ArrayList<CollectionView.InventoryGroup>();
+        HashMap<String, CollectionView.InventoryGroup> mainGroupName =
+                new HashMap<String, CollectionView.InventoryGroup>();
+
+        int dataindex = -1;
+
+        final boolean expandedMode = true;
+
+        final int displayCols = getResources().getInteger(R.integer.explore_2nd_level_grid_columns);
+
+        mPreloader.setDisplayCols(displayCols);
+
+
+        ArrayList<CollectionView.InventoryGroup> list = mainGroup;
+        HashMap<String, CollectionView.InventoryGroup> map = mainGroupName;
+
+        CollectionView.InventoryGroup group =
+                new CollectionView.InventoryGroup(0)
+                        .setDisplayCols(displayCols);
+
+
+
+        list.add(group);
+
+        while(mListIterator.hasNext()){
+
+            ++dataindex;
+
+
+
+
+        }
+
+
+
         ArrayList<CollectionView.InventoryGroup> pastGroups =
                 new ArrayList<CollectionView.InventoryGroup>();
         ArrayList<CollectionView.InventoryGroup> futureGroups =
@@ -488,8 +531,10 @@ public class MoviesFragment extends Fragment implements
         //final boolean expandedMode = useExpandedMode();
         final boolean expandedMode = true;
 
-        final int displayCols = getResources().getInteger(expandedMode ?
-                R.integer.explore_2nd_level_grid_columns : R.integer.explore_1st_level_grid_columns);
+        //final int displayCols = getResources().getInteger(expandedMode ?
+        //        R.integer.explore_2nd_level_grid_columns : R.integer.explore_1st_level_grid_columns);
+
+        final int displayCols = R.integer.explore_2nd_level_grid_columns;
         LOGD(TAG, "Using " + displayCols + " columns.");
         //mPreloader.setDisplayCols(displayCols);
 
@@ -846,20 +891,82 @@ public class MoviesFragment extends Fragment implements
 //        }
 //    }
 
-    private static class MovieListLoader extends AsyncTaskLoader<List<Movie>> {
 
-        List<Movie> mMovies;
+    private class Preloader extends ListPreloader<String> {
 
-        Uri uri;
+        private int[] photoDimens;
+        private int displayCols;
+
+        public Preloader(int maxPreload) {
+            super(maxPreload);
+        }
+
+        public void setDisplayCols(int displayCols) {
+            this.displayCols = displayCols;
+        }
+
+        public boolean isDimensSet() {
+            return photoDimens != null;
+        }
+
+        public void setDimens(int width, int height) {
+            if (photoDimens == null) {
+                photoDimens = new int[] { width, height };
+            }
+        }
+
+        @Override
+        protected int[] getDimensions(String s) {
+            return photoDimens;
+        }
+
+        @Override
+        protected List<String> getItems(int start, int end) {
+            // Our start and end are rows, we need to adjust them into data columns
+            // The keynote is 1 row with 1 data item, so we need to adjust.
+            int keynoteDataOffset = (displayCols - 1);
+            int dataStart = start * displayCols - keynoteDataOffset;
+            int dataEnd = end * displayCols - keynoteDataOffset;
+            List<String> urls = new ArrayList<String>();
+
+
+
+            if(mListIterator != null)
+            {
+                for(int i = dataStart; i < dataEnd; i++){
+                    if()
+                }
+            }
+
+
+            if (mCursor != null) {
+                for (int i = dataStart; i < dataEnd; i++) {
+                    if (mCursor.moveToPosition(i)) {
+                        urls.add(mCursor.getString(SessionsQuery.PHOTO_URL));
+                    }
+                }
+            }
+            return urls;
+        }
+
+        @Override
+        protected GenericRequestBuilder getRequestBuilder(String url) {
+            return mImageLoader.beginImageLoad(url, null, true /*crop*/);
+        }
+    }
+
+    private static class MovieListLoader extends AsyncTaskLoader<ListIterator<Movie>> {
+
+        ListIterator<Movie> mMovies;
+
+        int apiID;
 
         Tmdb tmdb;
 
-        public MovieListLoader(Context context, String apiCall) {
+        public MovieListLoader(Context context) {
             super(context);
 
-            // Retrieve the package manager for later use; note we don't
-            // use 'context' directly but instead the save global application
-            // context returned by getContext().
+            //this.apiID = apiID;
 
             tmdb = new Tmdb();
             tmdb.setApiKey(Config.TMDB_API_KEY);
@@ -872,15 +979,45 @@ public class MoviesFragment extends Fragment implements
          * data to be published by the loader.
          */
         @Override
-        public List<Movie> loadInBackground() {
-            // Retrieve all known applications.
+        public ListIterator<Movie> loadInBackground() {
 
-            List<Movie> movieList = null;
+            ListIterator<Movie> movieIterator = null;
+            MoviesService moviesService = null;
+            ResultsPage resultsPage = null;
 
-            final Context context = getContext();
+            try {
 
-            // Done!
-            return movieList;
+                moviesService = tmdb.moviesService();
+
+                switch(this.getId()) {
+
+                    case NOW_PLAYING_TOKEN:
+                        resultsPage = moviesService.nowPlaying();
+                        break;
+
+                    case UPCOMING_TOKEN:
+                        resultsPage = moviesService.upcoming();
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+                if(resultsPage != null) {
+
+                    movieIterator = resultsPage.results.listIterator();
+
+                }
+
+            } catch (Exception e) {
+
+                LOGE(TAG,"Network error");
+
+            }
+
+            // Done!<
+            return movieIterator;
         }
 
         /**
@@ -889,7 +1026,7 @@ public class MoviesFragment extends Fragment implements
          * here just adds a little more logic.
          */
         @Override
-        public void deliverResult(List<Movie> movies) {
+        public void deliverResult(ListIterator<Movie> movies) {
             if (isReset()) {
                 // An async query came in while the loader is stopped.  We
                 // don't need the result.
@@ -897,7 +1034,7 @@ public class MoviesFragment extends Fragment implements
                     onReleaseResources(movies);
                 }
             }
-            List<Movie> oldMovies = mMovies;
+            ListIterator<Movie> oldMovies = mMovies;
             mMovies = movies;
 
             if (isStarted()) {
@@ -946,7 +1083,7 @@ public class MoviesFragment extends Fragment implements
          * Handles a request to cancel a load.
          */
         @Override
-        public void onCanceled(List<Movie> movies) {
+        public void onCanceled(ListIterator<Movie> movies) {
             super.onCanceled(movies);
 
             // At this point we can release the resources associated with 'movies'
@@ -977,12 +1114,14 @@ public class MoviesFragment extends Fragment implements
          * Helper function to take care of releasing resources associated
          * with an actively loaded data set.
          */
-        protected void onReleaseResources(List<Movie> movies) {
-            // For a simple List<> there is nothing to do.  For something
+        protected void onReleaseResources(ListIterator<Movie> movies) {
+            // For a simple ListIterator<> there is nothing to do.  For something
             // like a Cursor, we would close it here.
         }
     }
 
 
-    private static final int TAG_METADATA_TOKEN = 0x4;
+    //private static final int TAG_METADATA_TOKEN = 0x4;
+    private static final int NOW_PLAYING_TOKEN = 0x1;
+    private static final int UPCOMING_TOKEN = 0x2;
 }
