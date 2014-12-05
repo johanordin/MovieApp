@@ -155,8 +155,8 @@ public class MoviesFragment extends Fragment implements
 
             if (msg.what == MESSAGE_QUERY_UPDATE) {
                 String query = (String) msg.obj;
-/*                reloadFromArguments(BaseActivity.intentToFragmentArguments(
-                        new Intent(Intent.ACTION_SEARCH, ScheduleContract.Sessions.buildSearchUri(query))));*/
+                //reloadFromArguments(BaseActivity.intentToFragmentArguments(
+                //        new Intent(Intent.ACTION_SEARCH, ScheduleContract.Sessions.buildSearchUri(query))));*/
             }
         }
 
