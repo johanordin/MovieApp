@@ -375,10 +375,6 @@ public class MoviesFragment extends Fragment implements
 
         if (token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
 
-            if (data != null && mListIterator != data) {
-                mListIterator = null;
-            }
-
             mListIterator = data;
 
             LOGD(TAG, "Will now update collection view.");
@@ -586,9 +582,10 @@ public class MoviesFragment extends Fragment implements
     public void bindCollectionItemView(Context context, View view, int groupId, int indexInGroup, int dataIndex, Object tag) {
 
 
-        if (mListIterator == null || !mListIterator.hasNext()) {
-            return;
-        }
+//        if (mListIterator == null || !mListIterator.hasNext()) {
+//            return;
+//        }
+
 
         Movie movie = mListIterator.next();
 
@@ -816,6 +813,8 @@ public class MoviesFragment extends Fragment implements
                 }
                 if (resultsPage != null) {
                     movieIterator = resultsPage.results.listIterator();
+
+
                 }
 
             } catch (Exception e) {
