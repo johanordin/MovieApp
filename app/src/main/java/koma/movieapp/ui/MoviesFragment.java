@@ -66,7 +66,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.TimeZone;
 
 import static koma.movieapp.util.LogUtils.LOGD;
@@ -81,7 +80,7 @@ import static koma.movieapp.util.LogUtils.makeLogTag;
  * filters or a search query.
  */
 public class MoviesFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<ListIterator<Movie>>, CollectionViewCallbacks {
+        LoaderManager.LoaderCallbacks<ArrayList<Movie>>, CollectionViewCallbacks {
 
     private static final String TAG = makeLogTag(MoviesFragment.class);
 
@@ -117,7 +116,7 @@ public class MoviesFragment extends Fragment implements
     //private Uri mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
     private Cursor mCursor;
 
-    private ListIterator<Movie> mListIterator;
+    private ArrayList<Movie> mMovieList;
 
     private boolean mIsSearchCursor;
     private boolean mNoTrackBranding;
@@ -348,21 +347,16 @@ public class MoviesFragment extends Fragment implements
 
     // LoaderCallbacks interface
     @Override
-    public Loader<ListIterator<Movie>> onCreateLoader(int id, Bundle data) {
+    public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
         Uri sessionsUri = intent.getData();
 
-        Loader<ListIterator<Movie>> loader = null;
-
-        loader = new MovieListLoader(getActivity());
-
-
-        return loader;
+        return new MovieListLoader(getActivity());
     }
 
     @Override
-    public void onLoadFinished(Loader<ListIterator<Movie>> loader, ListIterator<Movie> data) {
+    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> data) {
 
         if (getActivity() == null) {
             return;
@@ -375,7 +369,7 @@ public class MoviesFragment extends Fragment implements
 
         if (token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
 
-            mListIterator = data;
+            mMovieList = data;
 
             LOGD(TAG, "Will now update collection view.");
             updateCollectionView();
@@ -385,7 +379,7 @@ public class MoviesFragment extends Fragment implements
     }
 
     @Override
-    public void onLoaderReset(Loader<ListIterator<Movie>> loader) {
+    public void onLoaderReset(Loader<ArrayList<Movie>> loader) {
     }
 
     private final SharedPreferences.OnSharedPreferenceChangeListener mPrefChangeListener =
@@ -405,7 +399,7 @@ public class MoviesFragment extends Fragment implements
             };
 
     private void updateCollectionView() {
-        if (mListIterator == null) {
+        if (mMovieList.isEmpty()) {
             LOGD(TAG, "updateCollectionView: not ready yet... no iterator");
             // not ready
             return;
@@ -418,7 +412,7 @@ public class MoviesFragment extends Fragment implements
 
         CollectionView.Inventory inv;
 
-        if (mListIterator.hasNext()) {
+        if (!mMovieList.isEmpty()) {
             hideEmptyView();
             inv = prepareInventory();
         } else {
@@ -485,11 +479,7 @@ public class MoviesFragment extends Fragment implements
 //                new CollectionView.InventoryGroup(0)
 //                        .setDisplayCols(displayCols);
 
-
-        Movie movie;
-        while (mListIterator.hasNext()) {
-
-            movie = mListIterator.next();
+        for(Movie movie : mMovieList) {
 
             ++dataIndex;
 
@@ -582,12 +572,11 @@ public class MoviesFragment extends Fragment implements
     public void bindCollectionItemView(Context context, View view, int groupId, int indexInGroup, int dataIndex, Object tag) {
 
 
-//        if (mListIterator == null || !mListIterator.hasNext()) {
-//            return;
-//        }
+        if (mMovieList.isEmpty() || mMovieList.get(dataIndex) == null) {
+            return;
+        }
 
-
-        Movie movie = mListIterator.next();
+        Movie movie = mMovieList.get(dataIndex);
 
         final String movieId = movie.id.toString();
 
@@ -747,10 +736,10 @@ public class MoviesFragment extends Fragment implements
             int dataEnd = end * displayCols - keynoteDataOffset;
             List<String> urls = new ArrayList<String>();
 
-            if (mListIterator != null) {
-                while (mListIterator.hasNext()) {
+            if (!mMovieList.isEmpty()) {
+                for(Movie movie : mMovieList) {
                     String backdrop;
-                    backdrop = mListIterator.next().backdrop_path;
+                    backdrop = movie.backdrop_path;
                     //LOGD(TAG, "PRELOADER getItems: Backdrop =  " + backdrop);
 
                     System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
@@ -770,9 +759,9 @@ public class MoviesFragment extends Fragment implements
         }
     }
 
-    private static class MovieListLoader extends AsyncTaskLoader<ListIterator<Movie>> {
+    private static class MovieListLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
-        ListIterator<Movie> mMovies;
+        ArrayList<Movie> mMovies;
         int apiID;
         Tmdb tmdb;
 
@@ -790,9 +779,9 @@ public class MoviesFragment extends Fragment implements
          * data to be published by the loader.
          */
         @Override
-        public ListIterator<Movie> loadInBackground() {
+        public ArrayList<Movie> loadInBackground() {
 
-            ListIterator<Movie> movieIterator = null;
+            ArrayList<Movie> movieList = new ArrayList<>();
             MoviesService moviesService = null;
             ResultsPage resultsPage = null;
 
@@ -812,7 +801,12 @@ public class MoviesFragment extends Fragment implements
 
                 }
                 if (resultsPage != null) {
-                    movieIterator = resultsPage.results.listIterator();
+
+
+                    List<Movie> tempList = resultsPage.results;
+                    for(int i = 0; i < tempList.size(); i++) {
+                        movieList.add(tempList.get(i));
+                    }
 
 
                 }
@@ -822,7 +816,7 @@ public class MoviesFragment extends Fragment implements
             }
 
             // Done!
-            return movieIterator;
+            return movieList;
         }
 
         /**
@@ -831,7 +825,7 @@ public class MoviesFragment extends Fragment implements
          * here just adds a little more logic.
          */
         @Override
-        public void deliverResult(ListIterator<Movie> movies) {
+        public void deliverResult(ArrayList<Movie> movies) {
             if (isReset()) {
                 // An async query came in while the loader is stopped.  We
                 // don't need the result.
@@ -839,7 +833,7 @@ public class MoviesFragment extends Fragment implements
                     onReleaseResources(movies);
                 }
             }
-            ListIterator<Movie> oldMovies = mMovies;
+            ArrayList<Movie> oldMovies = mMovies;
             mMovies = movies;
 
             if (isStarted()) {
@@ -888,7 +882,7 @@ public class MoviesFragment extends Fragment implements
          * Handles a request to cancel a load.
          */
         @Override
-        public void onCanceled(ListIterator<Movie> movies) {
+        public void onCanceled(ArrayList<Movie> movies) {
             super.onCanceled(movies);
 
             // At this point we can release the resources associated with 'movies'
@@ -919,8 +913,8 @@ public class MoviesFragment extends Fragment implements
          * Helper function to take care of releasing resources associated
          * with an actively loaded data set.
          */
-        protected void onReleaseResources(ListIterator<Movie> movies) {
-            // For a simple ListIterator<> there is nothing to do.  For something
+        protected void onReleaseResources(ArrayList<Movie> movies) {
+            // For a simple ArrayList<> there is nothing to do.  For something
             // like a Cursor, we would close it here.
         }
     }
