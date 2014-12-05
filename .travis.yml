@@ -86,7 +86,7 @@ matrix:
 
 notifications:
   email: false
-
+  slack: liu-mtb:RUHFKryW7DJxw4voBiycC5xY
 
 
 # THE BUILD LIFECYCLE
