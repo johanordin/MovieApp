@@ -39,7 +39,10 @@ dependencies {
 
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile 'com.uwetrottmann:tmdb-java:0.7.0'
-    compile 'com.github.bumptech.glide:glide:3.4.0'
+
+    compile files('../third_party/glide/library/libs/glide-3.2.0a.jar')
+    compile files('../third_party/basic-http-client/libs/basic-http-client-android-0.88.jar')
+
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }

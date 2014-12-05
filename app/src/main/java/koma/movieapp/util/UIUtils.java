@@ -245,7 +245,7 @@ public class UIUtils {
                 Math.round(Color.blue(color) * factor));
     }
 
-    public static int scaleSessionColorToDefaultBG(int color) {
+    public static int scaleMovieColorToDefaultBG(int color) {
         return scaleColor(color, SESSION_BG_COLOR_SCALE_FACTOR, false);
     }
 

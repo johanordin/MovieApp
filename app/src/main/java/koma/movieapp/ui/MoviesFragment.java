@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,10 +35,13 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.content.AsyncTaskLoader;
 import android.support.v4.view.ViewCompat;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.uwetrottmann.tmdb.Tmdb;
@@ -44,8 +49,11 @@ import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.ResultsPage;
 import com.uwetrottmann.tmdb.services.MoviesService;
 
+import koma.movieapp.util.ImageLoader;
+
 import com.bumptech.glide.GenericRequestBuilder;
 import com.bumptech.glide.ListPreloader;
+
 import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CollectionView;
@@ -54,12 +62,9 @@ import koma.movieapp.ui.widget.MessageCardView;
 import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
 
-import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.TimeZone;
@@ -123,7 +128,7 @@ public class MoviesFragment extends Fragment implements
     private boolean mSessionDataIsFullReload = false;
 
     private ImageLoader mImageLoader;
-    private int mDefaultSessionColor;
+    private int mDefaultMovieColor;
 
     private CollectionView mCollectionView;
     private TextView mEmptyView;
@@ -185,13 +190,7 @@ public class MoviesFragment extends Fragment implements
         LOGD(TAG, "Reloading session data: " + (fullReload ? "FULL RELOAD" : "light refresh"));
         mSessionDataIsFullReload = fullReload;
 
-
-
-
-
-
-
-        //getLoaderManager().restartLoader(mSessionQueryToken, mArguments, MoviesFragment.this);
+        getLoaderManager().restartLoader(mSessionQueryToken, mArguments, MoviesFragment.this);
     }
 
     @Override
@@ -227,11 +226,11 @@ public class MoviesFragment extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //
-//        if (mImageLoader == null) {
-//            mImageLoader = new ImageLoader(this.getActivity());
-//        }
+        if (mImageLoader == null) {
+            mImageLoader = new ImageLoader(this.getActivity());
+        }
 
-        mDefaultSessionColor = getResources().getColor(R.color.default_session_color);
+        mDefaultMovieColor = getResources().getColor(R.color.default_movie_color);
 
         final TimeZone tz = PrefUtils.getDisplayTimeZone(getActivity());
         mDateFormat.setTimeZone(tz);
@@ -245,8 +244,8 @@ public class MoviesFragment extends Fragment implements
                 // existing loader. Otherwise, the loader will be init'd when reloadFromArguments
                 // is called.
 
-                //getLoaderManager().initLoader(mSessionQueryToken, null, MoviesFragment.this);
-                getLoaderManager().initLoader(0, null, this);
+                getLoaderManager().initLoader(mSessionQueryToken, null, MoviesFragment.this);
+                //getLoaderManager().initLoader(0, null, this);
 
 
             }
@@ -265,11 +264,9 @@ public class MoviesFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_movies, container, false);
-
         mCollectionView = (CollectionView) root.findViewById(R.id.movies_collection_view);
-        //mPreloader = new Preloader(ROWS_TO_PRELOAD);
-
-        //mCollectionView.setOnScrollListener(mPreloader);
+        mPreloader = new Preloader(ROWS_TO_PRELOAD);
+        mCollectionView.setOnScrollListener(mPreloader);
         mEmptyView = (TextView) root.findViewById(R.id.empty_text);
         mLoadingView = root.findViewById(R.id.loading);
         return root;
@@ -373,13 +370,12 @@ public class MoviesFragment extends Fragment implements
 
         int token = loader.getId();
 
-        LOGD(TAG, "Loader finished: "  + (token == NOW_PLAYING_TOKEN ? "now playing" :
-                token == UPCOMING_TOKEN ? "upcoming"  : "unknown"));
-
+        LOGD(TAG, "Loader finished: " + (token == NOW_PLAYING_TOKEN ? "now playing" :
+                token == UPCOMING_TOKEN ? "upcoming" : "unknown"));
 
         if (token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
 
-            if(data != null && mListIterator != data) {
+            if (data != null && mListIterator != data) {
                 mListIterator = null;
             }
 
@@ -413,24 +409,20 @@ public class MoviesFragment extends Fragment implements
             };
 
     private void updateCollectionView() {
-
-
-        if(mListIterator == null) {
+        if (mListIterator == null) {
             LOGD(TAG, "updateCollectionView: not ready yet... no iterator");
             // not ready
             return;
         }
 
-
         LOGD(TAG, "MoviesFragment updating CollectionView... " + (mSessionDataIsFullReload ?
                 "(FULL RELOAD)" : "(light refresh)"));
-
 
         mMaxDataIndexAnimated = 0;
 
         CollectionView.Inventory inv;
 
-        if(mListIterator.hasNext()) {
+        if (mListIterator.hasNext()) {
             hideEmptyView();
             inv = prepareInventory();
         } else {
@@ -444,8 +436,6 @@ public class MoviesFragment extends Fragment implements
             // it's not a full reload, so we want to keep scroll position, etc
             state = mCollectionView.onSaveInstanceState();
         }
-
-
         mCollectionView.setCollectionAdapter(this);
         mCollectionView.updateInventory(inv, mSessionDataIsFullReload);
         if (state != null) {
@@ -470,7 +460,6 @@ public class MoviesFragment extends Fragment implements
     }
 
 
-
     // Creates the CollectionView groups based on the cursor data.
     private CollectionView.Inventory prepareInventory() {
         LOGD(TAG, "Preparing collection view inventory.");
@@ -481,85 +470,76 @@ public class MoviesFragment extends Fragment implements
         HashMap<String, CollectionView.InventoryGroup> mainGroupName =
                 new HashMap<String, CollectionView.InventoryGroup>();
 
-        int dataindex = -1;
+        int dataIndex = -1;
 
         final boolean expandedMode = true;
+
+        int nextGroupId = HERO_GROUP_ID + 1000;
+
 
         final int displayCols = getResources().getInteger(R.integer.explore_2nd_level_grid_columns);
 
         mPreloader.setDisplayCols(displayCols);
 
 
-        ArrayList<CollectionView.InventoryGroup> list = mainGroup;
-        HashMap<String, CollectionView.InventoryGroup> map = mainGroupName;
-
-        CollectionView.InventoryGroup group =
-                new CollectionView.InventoryGroup(0)
-                        .setDisplayCols(displayCols);
-
-
-
-        list.add(group);
-
-        while(mListIterator.hasNext()){
-
-            ++dataindex;
+//        ArrayList<CollectionView.InventoryGroup> list = mainGroup;
+//        HashMap<String, CollectionView.InventoryGroup> map = mainGroupName;
+//
+//        CollectionView.InventoryGroup group =
+//                new CollectionView.InventoryGroup(0)
+//                        .setDisplayCols(displayCols);
 
 
+        Movie movie;
+        while (mListIterator.hasNext()) {
+
+            movie = mListIterator.next();
+
+            ++dataIndex;
+
+            String groupLabel;
+
+            groupLabel = "Movies";
+
+            CollectionView.InventoryGroup group;
+
+
+            // "list" and "map" are just shorthand variables pointing to the right list and map
+            ArrayList<CollectionView.InventoryGroup> list = mainGroup;
+            HashMap<String, CollectionView.InventoryGroup> map = mainGroupName;
+
+            // Create group, if it doesn't exist yet
+            if (!map.containsKey(groupLabel)) {
+                LOGV(TAG, "Creating new group: " + groupLabel);
+                group = new CollectionView.InventoryGroup(nextGroupId++)
+                        .setDisplayCols(displayCols)
+                        .setShowHeader(!TextUtils.isEmpty(groupLabel))
+                        .setHeaderLabel(groupLabel);
+                map.put(groupLabel, group);
+                list.add(group);
+            } else {
+                LOGV(TAG, "Adding to existing group: " + groupLabel);
+                group = map.get(groupLabel);
+            }
+
+            LOGV(TAG, "...adding to group '" + groupLabel + "' with custom data index " + dataIndex);
+            group.addItemWithCustomDataIndex(dataIndex);
 
 
         }
 
+        ArrayList<CollectionView.InventoryGroup> groups = new ArrayList<>();
 
+        groups.addAll(mainGroup);
 
-        ArrayList<CollectionView.InventoryGroup> pastGroups =
-                new ArrayList<CollectionView.InventoryGroup>();
-        ArrayList<CollectionView.InventoryGroup> futureGroups =
-                new ArrayList<CollectionView.InventoryGroup>();
-        HashMap<String, CollectionView.InventoryGroup> pastGroupsByName =
-                new HashMap<String, CollectionView.InventoryGroup>();
-        HashMap<String, CollectionView.InventoryGroup> futureGroupsByName =
-                new HashMap<String, CollectionView.InventoryGroup>();
-        CollectionView.InventoryGroup heroGroup = null;
-
-        mCursor.moveToPosition(-1);
-        int nextGroupId = HERO_GROUP_ID + 1000; // to avoid conflict with the special hero group ID
-        LOGD(TAG, "Total cursor data items: " + mCursor.getCount());
-        int dataIndex = -1;
-        final long now = UIUtils.getCurrentTime(mAppContext);
-
-        //final boolean expandedMode = useExpandedMode();
-        final boolean expandedMode = true;
-
-        //final int displayCols = getResources().getInteger(expandedMode ?
-        //        R.integer.explore_2nd_level_grid_columns : R.integer.explore_1st_level_grid_columns);
-
-        final int displayCols = R.integer.explore_2nd_level_grid_columns;
-        LOGD(TAG, "Using " + displayCols + " columns.");
-        //mPreloader.setDisplayCols(displayCols);
-
-        // prepare the final groups list
-        ArrayList<CollectionView.InventoryGroup> groups = new ArrayList<CollectionView.InventoryGroup>();
-        if (heroGroup != null) {
-            groups.add(heroGroup); // start with the hero
-        }
-        groups.addAll(futureGroups); // then all future events
-        groups.addAll(pastGroups); // then all past events
-        LOGD(TAG, "Total: hero " + (heroGroup == null ? "absent" : "present")
-                + " " + futureGroups.size() + " future groups, "
-                + " " + pastGroups.size() + " past groups, total " + groups.size());
-
-        // the first group doesn't need a header label, because it's the "default group"
-        //if (groups.size() > 0) {
-        //    groups.get(0).setHeaderLabel("").setShowHeader(false);
-        //}
-
-        // finally, assemble the inventory and we're done
         CollectionView.Inventory inventory = new CollectionView.Inventory();
         for (CollectionView.InventoryGroup g : groups) {
             inventory.addGroup(g);
         }
+
         return inventory;
+
+
     }
 
 
@@ -577,7 +557,6 @@ public class MoviesFragment extends Fragment implements
             tv.setText(groupLabel);
         }
     }
-
 
 
     @Override
@@ -606,196 +585,90 @@ public class MoviesFragment extends Fragment implements
     @Override
     public void bindCollectionItemView(Context context, View view, int groupId, int indexInGroup, int dataIndex, Object tag) {
 
-        if (mCursor == null || !mCursor.moveToPosition(dataIndex)) {
-            LOGW(TAG, "Can't bind collection view item, dataIndex=" + dataIndex +
-                    (mCursor == null ? ": cursor is null" : ": bad data index."));
+
+        if (mListIterator == null || !mListIterator.hasNext()) {
             return;
         }
 
-//        final String sessionId = mCursor.getString(SessionsQuery.SESSION_ID);
-//        if (sessionId == null) {
-//            return;
-//        }
-//
-//        // first, read session info from cursor and put it in convenience variables
-//        final String sessionTitle = mCursor.getString(SessionsQuery.TITLE);
-//        final String speakerNames = mCursor.getString(SessionsQuery.SPEAKER_NAMES);
-//        final String sessionAbstract = mCursor.getString(SessionsQuery.ABSTRACT);
-//        final long sessionStart = mCursor.getLong(SessionsQuery.SESSION_START);
-//        final long sessionEnd = mCursor.getLong(SessionsQuery.SESSION_END);
-//        final String roomName = mCursor.getString(SessionsQuery.ROOM_NAME);
-//        int sessionColor = mCursor.getInt(SessionsQuery.COLOR);
-//        sessionColor = sessionColor == 0 ? getResources().getColor(R.color.default_session_color)
-//                : sessionColor;
-//        int darkSessionColor = 0;
-//        final String snippet = mIsSearchCursor ? mCursor.getString(SessionsQuery.SNIPPET) : null;
-//        final Spannable styledSnippet = mIsSearchCursor ? buildStyledSnippet(snippet) : null;
-//        final boolean starred = mCursor.getInt(SessionsQuery.IN_MY_SCHEDULE) != 0;
-//        final String[] tags = mCursor.getString(SessionsQuery.TAGS).split(",");
-//
-//        // now let's compute a few pieces of information from the data, which we will use
-//        // later to decide what to render where
-//        final boolean hasLivestream = !TextUtils.isEmpty(mCursor.getString(
-//                SessionsQuery.LIVESTREAM_URL));
-//        final long now = UIUtils.getCurrentTime(context);
-//        final boolean happeningNow = now >= sessionStart && now <= sessionEnd;
-//
-//        // text that says "LIVE" if session is live, or empty if session is not live
-//        final String liveNowText = hasLivestream ? " " + UIUtils.getLiveBadgeText(context,
-//                sessionStart, sessionEnd) : "";
-//
-//        // get reference to all the views in the layout we will need
-//        final TextView titleView = (TextView) view.findViewById(R.id.session_title);
-//        final TextView subtitleView = (TextView) view.findViewById(R.id.session_subtitle);
-//        final TextView shortSubtitleView = (TextView) view.findViewById(R.id.session_subtitle_short);
-//        final TextView snippetView = (TextView) view.findViewById(R.id.session_snippet);
-//        final TextView abstractView = (TextView) view.findViewById(R.id.session_abstract);
-//        final TextView categoryView = (TextView) view.findViewById(R.id.session_category);
-//        final View sessionTargetView = view.findViewById(R.id.session_target);
-//
-//        if (sessionColor == 0) {
-//            // use default
-//            sessionColor = mDefaultSessionColor;
-//        }
-//
-//        if (mNoTrackBranding) {
-//            sessionColor = getResources().getColor(R.color.no_track_branding_session_color);
-//        }
-//
-//        darkSessionColor = UIUtils.scaleSessionColorToDefaultBG(sessionColor);
-//
-//        ImageView photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
-//        if (photoView != null) {
-//            if (!mPreloader.isDimensSet()) {
-//                final ImageView finalPhotoView = photoView;
-//                photoView.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        mPreloader.setDimens(finalPhotoView.getWidth(), finalPhotoView.getHeight());
-//                    }
-//                });
-//            }
-//            // colored
-//            photoView.setColorFilter(mNoTrackBranding
-//                    ? new PorterDuffColorFilter(
-//                    getResources().getColor(R.color.no_track_branding_session_tile_overlay),
-//                    PorterDuff.Mode.SRC_ATOP)
-//                    : UIUtils.makeSessionImageScrimColorFilter(darkSessionColor));
-//        } else {
-//            photoView = (ImageView) view.findViewById(R.id.session_photo);
-//        }
-//        ViewCompat.setTransitionName(photoView, "photo_" + sessionId);
-//
-//        // when we load a photo, it will fade in from transparent so the
-//        // background of the container must be the session color to avoid a white flash
-//        ViewParent parent = photoView.getParent();
-//        if (parent != null && parent instanceof View) {
-//            ((View) parent).setBackgroundColor(darkSessionColor);
-//        } else {
-//            photoView.setBackgroundColor(darkSessionColor);
-//        }
-//
-//        String photo = mCursor.getString(SessionsQuery.PHOTO_URL);
-//        if (!TextUtils.isEmpty(photo)) {
-//            mImageLoader.loadImage(photo, photoView, true *//*crop*//*);
-//        } else {
-//            // cleaning the (potentially) recycled photoView, in case this session has no photo:
-//            photoView.setImageDrawable(null);
-//        }
-//
-//        // render title
-//        titleView.setText(sessionTitle == null ? "?" : sessionTitle);
-//
-//        // render subtitle into either the subtitle view, or the short subtitle view, as available
-//        if (subtitleView != null) {
-//            subtitleView.setText(UIUtils.formatSessionSubtitle(
-//                    sessionStart, sessionEnd, roomName, mBuffer, context) + liveNowText);
-//        } else if (shortSubtitleView != null) {
-//            shortSubtitleView.setText(UIUtils.formatSessionSubtitle(
-//                    sessionStart, sessionEnd, roomName, mBuffer, context, true) + liveNowText);
-//        }
-//
-//        // render category
-//        if (categoryView != null) {
-//            TagMetadata.Tag groupTag = mTagMetadata.getSessionGroupTag(tags);
-//            if (groupTag != null && !Config.Tags.SESSIONS.equals(groupTag.getId())) {
-//                categoryView.setText(groupTag.getName());
-//                categoryView.setVisibility(View.VISIBLE);
-//            } else {
-//                categoryView.setVisibility(View.GONE);
-//            }
-//        }
-//
-//        // if a snippet view is available, render the session snippet there.
-//        if (snippetView != null) {
-//            if (mIsSearchCursor) {
-//                // render the search snippet into the snippet view
-//                snippetView.setText(styledSnippet);
-//            } else {
-//                // render speaker names and abstracts into the snippet view
-//                mBuffer.setLength(0);
-//                if (!TextUtils.isEmpty(speakerNames)) {
-//                    mBuffer.append(speakerNames).append(". ");
-//                }
-//                if (!TextUtils.isEmpty(sessionAbstract)) {
-//                    mBuffer.append(sessionAbstract);
-//                }
-//                snippetView.setText(mBuffer.toString());
-//            }
-//        }
-//
-//        if (abstractView != null && !mIsSearchCursor) {
-//            // render speaker names and abstracts into the abstract view
-//            mBuffer.setLength(0);
-//            if (!TextUtils.isEmpty(speakerNames)) {
-//                mBuffer.append(speakerNames).append("\n\n");
-//            }
-//            if (!TextUtils.isEmpty(sessionAbstract)) {
-//                mBuffer.append(sessionAbstract);
-//            }
-//            abstractView.setText(mBuffer.toString());
-//        }
-//
-//        // show or hide the "in my schedule" indicator
-//        view.findViewById(R.id.indicator_in_schedule).setVisibility(starred ? View.VISIBLE
-//                : View.INVISIBLE);
-//
-//        // if we are in condensed mode and this card is the hero card (big card at the top
-//        // of the screen), set up the message card if necessary.
-//        if (!useExpandedMode() && groupId == HERO_GROUP_ID) {
-//            // this is the hero view, so we might want to show a message card
-//            final boolean cardShown = setupMessageCard(view);
-//
-//            // if this is the wide hero layout, show or hide the card or the session abstract
-//            // view, as appropriate (they are mutually exclusive).
-//            final View cardContainer = view.findViewById(R.id.message_card_container_wide);
-//            final View abstractContainer = view.findViewById(R.id.session_abstract);
-//            if (cardContainer != null && abstractContainer != null) {
-//                cardContainer.setVisibility(cardShown ? View.VISIBLE : View.GONE);
-//                abstractContainer.setVisibility(cardShown ? View.GONE : View.VISIBLE);
-//                abstractContainer.setBackgroundColor(darkSessionColor);
-//            }
-//        }
-//
-//        // if this session is live right now, display the "LIVE NOW" icon on top of it
-//        View liveNowBadge = view.findViewById(R.id.live_now_badge);
-//        if (liveNowBadge != null) {
-//            liveNowBadge.setVisibility(happeningNow && hasLivestream ? View.VISIBLE : View.GONE);
-//        }
-//
-//        // if this view is clicked, open the session details view
-//        final View finalPhotoView = photoView;
-//        sessionTargetView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mCallbacks.onSessionSelected(sessionId, finalPhotoView);
-//            }
-//        });
-//
-//        // animate this card
-//        if (dataIndex > mMaxDataIndexAnimated) {
-//            mMaxDataIndexAnimated = dataIndex;
-//        }
+        Movie movie = mListIterator.next();
+
+        final String movieId = movie.id.toString();
+
+        if (movieId == null) return;
+
+        final String movieTitle = movie.title;
+        final String movieRating = movie.vote_average.toString();
+
+        System.out.println("Movie title in BindCollectionItemView: " + movieTitle);
+
+        int movieColor = getResources().getColor(R.color.default_movie_color);
+        int darkMovieColor = 0;
+
+        final TextView titleView = (TextView) view.findViewById(R.id.movie_title);
+        final TextView ratingView = (TextView) view.findViewById(R.id.movie_rating);
+
+        final View movieTargetView = view.findViewById(R.id.movie_target);
+
+
+        if (movieColor == 0) {
+            movieColor = mDefaultMovieColor;
+        }
+
+        darkMovieColor = UIUtils.scaleMovieColorToDefaultBG(movieColor);
+
+        ImageView photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
+
+        if (photoView != null) {
+            if (!mPreloader.isDimensSet()) {
+                final ImageView finalPhotoView = photoView;
+                photoView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPreloader.setDimens(finalPhotoView.getWidth(), finalPhotoView.getHeight());
+                    }
+                });
+            }
+            // colored
+            photoView.setColorFilter(mNoTrackBranding
+                    ? new PorterDuffColorFilter(
+                    getResources().getColor(R.color.no_track_branding_session_tile_overlay),
+                    PorterDuff.Mode.SRC_ATOP)
+                    : UIUtils.makeSessionImageScrimColorFilter(darkMovieColor));
+        } else {
+            photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
+        }
+        ViewCompat.setTransitionName(photoView, "photo_" + movieId);
+
+        // when we load a photo, it will fade in from transparent so the
+        // background of the container must be the session color to avoid a white flash
+        ViewParent parent = photoView.getParent();
+        if (parent != null && parent instanceof View) {
+            ((View) parent).setBackgroundColor(darkMovieColor);
+        } else {
+            photoView.setBackgroundColor(darkMovieColor);
+        }
+
+        // render title
+        titleView.setText(movieTitle == null ? "?" : movieTitle);
+
+
+        if (ratingView != null) {
+            ratingView.setText(movieRating);
+        }
+
+        final View finalPhotoView = photoView;
+        movieTargetView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallbacks.onSessionSelected(movieId, finalPhotoView);
+            }
+        });
+
+        // animate this card
+        if (dataIndex > mMaxDataIndexAnimated) {
+            mMaxDataIndexAnimated = dataIndex;
+        }
+
     }
 
 
@@ -839,58 +712,6 @@ public class MoviesFragment extends Fragment implements
     private void animateSessionAppear(final View view) {
     }
 
-//    private class Preloader extends ListPreloader<String> {
-//
-//        private int[] photoDimens;
-//        private int displayCols;
-//
-//        public Preloader(int maxPreload) {
-//            super(maxPreload);
-//        }
-//
-//        public void setDisplayCols(int displayCols) {
-//            this.displayCols = displayCols;
-//        }
-//
-//        public boolean isDimensSet() {
-//            return photoDimens != null;
-//        }
-//
-//        public void setDimens(int width, int height) {
-//            if (photoDimens == null) {
-//                photoDimens = new int[] { width, height };
-//            }
-//        }
-//
-//        @Override
-//        protected int[] getDimensions(String s) {
-//            return photoDimens;
-//        }
-//
-//        @Override
-//        protected List<String> getItems(int start, int end) {
-//            // Our start and end are rows, we need to adjust them into data columns
-//            // The keynote is 1 row with 1 data item, so we need to adjust.
-//            int keynoteDataOffset = (displayCols - 1);
-//            int dataStart = start * displayCols - keynoteDataOffset;
-//            int dataEnd = end * displayCols - keynoteDataOffset;
-//            List<String> urls = new ArrayList<String>();
-//            if (mCursor != null) {
-//                for (int i = dataStart; i < dataEnd; i++) {
-//                    if (mCursor.moveToPosition(i)) {
-//                        urls.add(mCursor.getString(SessionsQuery.PHOTO_URL));
-//                    }
-//                }
-//            }
-//            return urls;
-//        }
-//
-//        @Override
-//        protected GenericRequestBuilder getRequestBuilder(String url) {
-//            return mImageLoader.beginImageLoad(url, null, true /*crop*/);
-//        }
-//    }
-
 
     private class Preloader extends ListPreloader<String> {
 
@@ -911,7 +732,7 @@ public class MoviesFragment extends Fragment implements
 
         public void setDimens(int width, int height) {
             if (photoDimens == null) {
-                photoDimens = new int[] { width, height };
+                photoDimens = new int[]{width, height};
             }
         }
 
@@ -929,24 +750,21 @@ public class MoviesFragment extends Fragment implements
             int dataEnd = end * displayCols - keynoteDataOffset;
             List<String> urls = new ArrayList<String>();
 
+            if (mListIterator != null) {
+                while (mListIterator.hasNext()) {
+                    String backdrop;
+                    backdrop = mListIterator.next().backdrop_path;
+                    //LOGD(TAG, "PRELOADER getItems: Backdrop =  " + backdrop);
 
+                    System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
 
-            if(mListIterator != null)
-            {
-                for(int i = dataStart; i < dataEnd; i++){
-                    if()
+                    urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
+
                 }
             }
 
-
-            if (mCursor != null) {
-                for (int i = dataStart; i < dataEnd; i++) {
-                    if (mCursor.moveToPosition(i)) {
-                        urls.add(mCursor.getString(SessionsQuery.PHOTO_URL));
-                    }
-                }
-            }
             return urls;
+
         }
 
         @Override
@@ -958,19 +776,15 @@ public class MoviesFragment extends Fragment implements
     private static class MovieListLoader extends AsyncTaskLoader<ListIterator<Movie>> {
 
         ListIterator<Movie> mMovies;
-
         int apiID;
-
         Tmdb tmdb;
 
         public MovieListLoader(Context context) {
             super(context);
-
             //this.apiID = apiID;
 
             tmdb = new Tmdb();
             tmdb.setApiKey(Config.TMDB_API_KEY);
-
         }
 
         /**
@@ -986,37 +800,29 @@ public class MoviesFragment extends Fragment implements
             ResultsPage resultsPage = null;
 
             try {
-
                 moviesService = tmdb.moviesService();
-
-                switch(this.getId()) {
+                System.out.println("hej!!!!!!!!!!!!   " + getId());
+                switch (this.getId()) {
 
                     case NOW_PLAYING_TOKEN:
                         resultsPage = moviesService.nowPlaying();
                         break;
-
                     case UPCOMING_TOKEN:
                         resultsPage = moviesService.upcoming();
                         break;
-
                     default:
                         break;
 
                 }
-
-                if(resultsPage != null) {
-
+                if (resultsPage != null) {
                     movieIterator = resultsPage.results.listIterator();
-
                 }
 
             } catch (Exception e) {
-
-                LOGE(TAG,"Network error");
-
+                LOGE(TAG, "Network error");
             }
 
-            // Done!<
+            // Done!
             return movieIterator;
         }
 
@@ -1122,6 +928,6 @@ public class MoviesFragment extends Fragment implements
 
 
     //private static final int TAG_METADATA_TOKEN = 0x4;
-    private static final int NOW_PLAYING_TOKEN = 0x1;
+    private static final int NOW_PLAYING_TOKEN = 0x0;
     private static final int UPCOMING_TOKEN = 0x2;
 }

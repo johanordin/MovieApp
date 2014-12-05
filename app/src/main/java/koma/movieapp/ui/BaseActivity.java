@@ -45,6 +45,7 @@ import koma.movieapp.R;
 import koma.movieapp.ui.widget.MultiSwipeRefreshLayout;
 import koma.movieapp.ui.widget.ScrimInsetsScrollView;
 import koma.movieapp.util.HelpUtils;
+import koma.movieapp.util.ImageLoader;
 import koma.movieapp.util.LUtils;
 import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
@@ -156,7 +157,8 @@ public abstract class BaseActivity extends ActionBarActivity implements
     private int mProgressBarTopWhenActionBarShown;
     private static final TypeEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
 
-    private Picasso mPicasso;
+    private ImageLoader mImageLoader;
+
 
 
     @Override
@@ -165,7 +167,9 @@ public abstract class BaseActivity extends ActionBarActivity implements
 
         PrefUtils.init(this);
 
-        Picasso.setSingletonInstance(mPicasso);
+        mImageLoader = new ImageLoader(this);
+        mHandler = new Handler();
+
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);

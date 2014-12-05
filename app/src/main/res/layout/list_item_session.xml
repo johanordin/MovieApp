@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="300dp"
     android:foreground="?photoItemForeground"
-    android:id="@+id/session_target">
+    android:id="@+id/movie_target">
 
     <!-- Session image -->
     <ImageView android:id="@+id/session_photo_colored"
@@ -26,7 +26,7 @@
         android:layout_height="match_parent" />
 
     <!-- Session category/group if non-default (e.g. "Workshop") -->
-    <TextView android:id="@+id/session_category"
+    <TextView android:id="@+id/movie_rating"
         style="@style/ExploreItem.Category"
         android:padding="16dp"
         android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
         android:orientation="vertical">
 
         <!-- Session title -->
-        <TextView android:id="@+id/session_title"
+        <TextView android:id="@+id/movie_title"
             style="@style/ExploreItem.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

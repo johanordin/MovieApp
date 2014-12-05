@@ -64,7 +64,7 @@
 
     <color name="session_photo_scrim">#6000</color>
 
-    <color name="default_session_color">@color/theme_primary</color>
+    <color name="default_movie_color">@color/theme_primary</color>
     <color name="no_track_branding_session_tile_overlay">#8333</color>
     <color name="no_track_branding_session_color">#333</color>
 
