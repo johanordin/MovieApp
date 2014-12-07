@@ -584,6 +584,7 @@ public class MoviesFragment extends Fragment implements
 
         final String movieTitle = movie.title;
         final String movieRating = movie.vote_average.toString();
+        final String movieBackdrop = movie.backdrop_path;
 
         System.out.println("Movie title in BindCollectionItemView: " + movieTitle);
 
@@ -641,6 +642,9 @@ public class MoviesFragment extends Fragment implements
         if (ratingView != null) {
             ratingView.setText(movieRating);
         }
+
+
+        mImageLoader.loadImage(Config.TMDB_IMAGE_BASE_URL + "w780" + movieBackdrop, photoView);
 
         final View finalPhotoView = photoView;
         movieTargetView.setOnClickListener(new View.OnClickListener() {
