@@ -550,10 +550,10 @@ public class MoviesFragment extends Fragment implements
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         int layoutId;
-        layoutId = R.layout.list_item_session;
+        layoutId = R.layout.list_item_movie;
 
 //        if (useExpandedMode()) {
-//            layoutId = R.layout.list_item_session;
+//            layoutId = R.layout.list_item_movie;
 //        } else {
 //            // Group HERO_GROUP_ID is the hero -- use a larger layout
 //            layoutId = (groupId == HERO_GROUP_ID) ? R.layout.list_item_session_hero :
@@ -615,12 +615,12 @@ public class MoviesFragment extends Fragment implements
                     }
                 });
             }
-            // colored
-            photoView.setColorFilter(mNoTrackBranding
-                    ? new PorterDuffColorFilter(
-                    getResources().getColor(R.color.no_track_branding_session_tile_overlay),
-                    PorterDuff.Mode.SRC_ATOP)
-                    : UIUtils.makeSessionImageScrimColorFilter(darkMovieColor));
+//            // colored
+//            photoView.setColorFilter(mNoTrackBranding
+//                    ? new PorterDuffColorFilter(
+//                    getResources().getColor(R.color.no_track_branding_session_tile_overlay),
+//                    PorterDuff.Mode.SRC_ATOP)
+//                    : UIUtils.makeSessionImageScrimColorFilter(darkMovieColor));
         } else {
             photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
         }
