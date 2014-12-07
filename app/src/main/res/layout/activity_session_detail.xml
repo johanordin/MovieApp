@@ -119,7 +119,7 @@
                 android:id="@+id/movie_title"
                 android:maxLines="4"
                 android:ellipsize="end"
-                android:textSize="@dimen/text_size_large"
+                android:textSize="@dimen/text_size_xxlarge"
                 android:lineSpacingMultiplier="1.1"
                 android:textStyle="@integer/font_textStyle_medium"
                 android:fontFamily="@string/font_fontFamily_medium"

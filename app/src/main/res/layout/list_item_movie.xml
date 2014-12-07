@@ -16,7 +16,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="300dp"
+    android:layout_height="220dp"
     android:foreground="?photoItemForeground"
     android:id="@+id/movie_target">
 
@@ -43,19 +43,12 @@
 
         <!-- Session title -->
         <TextView android:id="@+id/movie_title"
-            style="@style/ExploreItem.Title"
+            style="@style/MovieItem.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="8dp"
             android:text="@string/placeholder_movie_title" />
 
     </LinearLayout>
-
-    <!-- "In schedule" indicator -->
-    <ImageView android:id="@+id/indicator_in_schedule"
-        android:layout_gravity="top|end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/indicator_in_schedule"
-        android:contentDescription="@null" />
 
 </FrameLayout>
