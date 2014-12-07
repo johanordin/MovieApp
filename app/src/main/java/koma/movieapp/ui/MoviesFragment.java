@@ -791,7 +791,6 @@ public class MoviesFragment extends Fragment implements
 
             try {
                 moviesService = tmdb.moviesService();
-                System.out.println("hej!!!!!!!!!!!!   " + getId());
                 switch (this.getId()) {
                     case POPULAR_TOKEN:
                         resultsPage = moviesService.popular();

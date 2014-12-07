@@ -17,6 +17,7 @@
 package koma.movieapp.ui;
 
 import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -277,10 +278,16 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     // TODO
     @Override
     public void onSessionSelected(String sessionId, View clickedView) {
-/*        getLUtils().startActivityWithTransition(new Intent(Intent.ACTION_VIEW,
-                        ScheduleContract.Sessions.buildSessionUri(sessionId)),
-                clickedView,
-                SessionDetailActivity.TRANSITION_NAME_PHOTO);*/
+//        getLUtils().startActivityWithTransition(new Intent(Intent.ACTION_VIEW,
+//                        ScheduleContract.Sessions.buildSessionUri(sessionId)),
+//                clickedView,
+//                SessionDetailActivity.TRANSITION_NAME_PHOTO);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.putExtra("movieId", sessionId);
+
+        getLUtils().startActivityWithTransition(intent,clickedView, SessionDetailActivity.TRANSITION_NAME_PHOTO);
+//
     }
 
     @Override

@@ -71,6 +71,23 @@
     <!-- Title in the Settings screen for the "Show local times" option -->
     <string name="pref_local_times_title">Show local times</string>
     <string name="navdrawer_item_settings">Settings</string>
+    <string name="overview_title">Overview</string>
+
+
+    <!-- Button text indicating the session is in the user's schedule -->
+    <string name="remove_from_schedule">In schedule</string>
+
+    <!-- Accessibility content description for button used to remove the session from the user's schedule -->
+    <string name="remove_from_schedule_desc">Button to remove session from your schedule.</string>
+
+    <!-- Label on a button that, when clicked, adds the currently displayed session to their schedule. -->
+    <string name="add_to_schedule">Add to schedule</string>
+
+    <!-- Accessibility description for a button that, when clicked, adds the currently
+    displayed session to the user's schedule. -->
+    <string name="add_to_schedule_desc">Button to add session to your schedule</string>
+
+
 
 
 </resources>

@@ -46,7 +46,7 @@
             style="@style/ExploreItem.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/placeholder_session_title" />
+            android:text="@string/placeholder_movie_title" />
 
     </LinearLayout>
 
