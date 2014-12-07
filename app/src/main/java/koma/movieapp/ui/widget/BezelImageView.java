@@ -16,8 +16,6 @@
 
 package koma.movieapp.ui.widget;
 
-import koma.movieapp.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -33,6 +31,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import koma.movieapp.R;
 
 /**
  * An {@link android.widget.ImageView} that draws its contents inside a mask and draws a border

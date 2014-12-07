@@ -20,20 +20,18 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.ListFragment;
 import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.content.AsyncTaskLoader;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -44,23 +42,12 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.ListPreloader;
 import com.uwetrottmann.tmdb.Tmdb;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.entities.ResultsPage;
 import com.uwetrottmann.tmdb.services.MoviesService;
-
-import koma.movieapp.util.ImageLoader;
-
-import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.ListPreloader;
-
-import koma.movieapp.Config;
-import koma.movieapp.R;
-import koma.movieapp.ui.widget.CollectionView;
-import koma.movieapp.ui.widget.CollectionViewCallbacks;
-import koma.movieapp.ui.widget.MessageCardView;
-import koma.movieapp.util.PrefUtils;
-import koma.movieapp.util.UIUtils;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -68,10 +55,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
+import koma.movieapp.Config;
+import koma.movieapp.R;
+import koma.movieapp.ui.widget.CollectionView;
+import koma.movieapp.ui.widget.CollectionViewCallbacks;
+import koma.movieapp.ui.widget.MessageCardView;
+import koma.movieapp.util.ImageLoader;
+import koma.movieapp.util.PrefUtils;
+import koma.movieapp.util.UIUtils;
+
 import static koma.movieapp.util.LogUtils.LOGD;
 import static koma.movieapp.util.LogUtils.LOGE;
 import static koma.movieapp.util.LogUtils.LOGV;
-import static koma.movieapp.util.LogUtils.LOGW;
 import static koma.movieapp.util.LogUtils.makeLogTag;
 
 /**
@@ -629,11 +624,11 @@ public class MoviesFragment extends Fragment implements
         // when we load a photo, it will fade in from transparent so the
         // background of the container must be the session color to avoid a white flash
         ViewParent parent = photoView.getParent();
-        if (parent != null && parent instanceof View) {
-            ((View) parent).setBackgroundColor(darkMovieColor);
-        } else {
-            photoView.setBackgroundColor(darkMovieColor);
-        }
+//        if (parent != null && parent instanceof View) {
+//            ((View) parent).setBackgroundColor(darkMovieColor);
+//        } else {
+//            photoView.setBackgroundColor(darkMovieColor);
+//        }
 
         // render title
         titleView.setText(movieTitle == null ? "?" : movieTitle);

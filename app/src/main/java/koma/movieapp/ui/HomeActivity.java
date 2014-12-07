@@ -29,7 +29,7 @@ import koma.movieapp.ui.widget.CollectionView;
 import koma.movieapp.ui.widget.DrawShadowFrameLayout;
 import koma.movieapp.util.UIUtils;
 
-import static koma.movieapp.util.LogUtils.*;
+import static koma.movieapp.util.LogUtils.makeLogTag;
 
 public class HomeActivity extends BaseActivity implements MoviesFragment.Callbacks {
     private static final String TAG = makeLogTag(HomeActivity.class);
@@ -150,7 +150,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
         }
 
         mMoviesFrag = (MoviesFragment) getFragmentManager().findFragmentById(
-                R.id.sessions_fragment);
+                R.id.movies_fragment);
         if (mMoviesFrag != null && savedInstanceState == null) {
             Bundle args = intentToFragmentArguments(getIntent());
             mMoviesFrag.reloadFromArguments(args);
@@ -221,7 +221,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     // Updates the Sessions fragment content top clearance to take our chrome into account
     private void updateFragContentTopClearance() {
         MoviesFragment frag = (MoviesFragment) getFragmentManager().findFragmentById(
-                R.id.sessions_fragment);
+                R.id.movies_fragment);
         if (frag == null) {
             return;
         }

@@ -1,16 +1,12 @@
 package koma.movieapp.ui;
 
-import android.accounts.Account;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +19,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,15 +27,10 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import koma.movieapp.BuildConfig;
-import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.MultiSwipeRefreshLayout;
 import koma.movieapp.ui.widget.ScrimInsetsScrollView;
@@ -50,10 +40,7 @@ import koma.movieapp.util.LUtils;
 import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
 
-
 import static koma.movieapp.util.LogUtils.LOGD;
-import static koma.movieapp.util.LogUtils.LOGE;
-import static koma.movieapp.util.LogUtils.LOGI;
 import static koma.movieapp.util.LogUtils.LOGW;
 import static koma.movieapp.util.LogUtils.makeLogTag;
 
