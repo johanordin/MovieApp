@@ -86,8 +86,7 @@
     <!-- Accessibility description for a button that, when clicked, adds the currently
     displayed session to the user's schedule. -->
     <string name="add_to_schedule_desc">Button to add session to your schedule</string>
-
-
+    <string name="title_movie_detail">Movie Information</string>
 
 
 </resources>

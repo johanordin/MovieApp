@@ -84,7 +84,7 @@
 
     <style name="Theme.MovieApp.Welcome" parent="Theme.MovieApp" />
 
-    <style name="Theme.MovieApp.Sessions" parent="Theme.MovieApp.WithNavDrawer">
+    <style name="Theme.MovieApp.Movies" parent="Theme.MovieApp.WithNavDrawer">
         <item name="actionBarInsetStart">@dimen/keyline_2_minus_16dp</item>
         <item name="spinnerBarInsetStart">@dimen/keyline_2_minus_16dp</item>
         <item name="android:windowBackground">@color/gray_background</item>
@@ -99,8 +99,6 @@
     <style name="Widget.MovieApp.Search.AutoCompleteTextView" parent="Widget.AppCompat.Light.AutoCompleteTextView">
         <item name="android:textColorHint">#5fff</item>
     </style>
-
-    <style name="Theme.MovieApp.VideoLibrary" parent="Theme.MovieApp.WithNavDrawer" />
 
     <style name="Widget.MovieApp.HeaderBar.Spinner.Base" parent="Widget.AppCompat.Light.Spinner.DropDown.ActionBar">
         <item name="android:background">?android:selectableItemBackground</item>
@@ -132,12 +130,12 @@
     <style name="Theme.MovieApp.MySchedule" parent="Theme.MovieApp.WithNavDrawer" />
 
     <!-- Intermediary theme for SessionDetails (so we can override it on large screens) -->
-    <style name="Theme.MovieApp.SessionDetails.Base" parent="Theme.MovieApp">
+    <style name="Theme.MovieApp.MovieDetails.Base" parent="Theme.MovieApp">
         <item name="isFloatingWindow">false</item>
     </style>
 
     <!-- Session Details -->
-    <style name="Theme.MovieApp.SessionDetails" parent="Theme.MovieApp.SessionDetails.Base" />
+    <style name="Theme.MovieApp.MovieDetails" parent="Theme.MovieApp.MovieDetails.Base" />
 
     <!-- Misc -->
     <style name="TabIndicator" />
@@ -149,12 +147,6 @@
 
     <style name="TranslucentActionBar" parent="">
         <item name="android:background">@color/translucent_actionbar_background</item>
-    </style>
-
-    <!-- Live stream -->
-    <style name="Theme.MovieApp.Livestream" parent="Theme.MovieApp">
-        <item name="android:windowBackground">@color/gray_background</item>
-        <item name="actionBarInsetStart">@dimen/keyline_2_minus_16dp</item>
     </style>
 
     <!-- Empty views -->
@@ -234,26 +226,9 @@
         <item name="android:textSize">@dimen/text_size_small</item>
     </style>
 
-    <!-- Login stuff -->
-
-    <style name="LoginHelpText">
-        <item name="android:textSize">@dimen/text_size_medium</item>
-        <item name="android:lineSpacingMultiplier">1.1</item>
-        <item name="android:textColor">@color/body_text_1</item>
-        <item name="android:fontFamily">sans-serif-light</item>
-    </style>
-
 
     <style name="Widget.MovieApp.EditText" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/edit_text</item>
-    </style>
-
-    <style name="SessionDetailPlusOne">
-        <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_alignParentTop">true</item>
-        <item name="android:layout_marginLeft">@dimen/content_padding_normal</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="MyScheduleDayLabel">

@@ -94,7 +94,7 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
                 new Intent(Intent.ACTION_VIEW,
                         ScheduleContract.Sessions.buildSessionUri(sessionId)),
                 clickedView,
-                SessionDetailActivity.TRANSITION_NAME_PHOTO);
+                MovieDetailActivity.TRANSITION_NAME_PHOTO);
 */
 
 

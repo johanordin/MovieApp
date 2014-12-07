@@ -47,6 +47,10 @@ import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
 import com.uwetrottmann.tmdb.services.MoviesService;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CheckableFrameLayout;
@@ -55,21 +59,16 @@ import koma.movieapp.util.ImageLoader;
 import koma.movieapp.util.LogUtils;
 import koma.movieapp.util.UIUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
-import static koma.movieapp.util.LogUtils.LOGD;
 import static koma.movieapp.util.LogUtils.LOGE;
 
 /**
  * An activity that shows detail information for a session, including session title, abstract,
  * time information, speaker photos and bios, etc.
  */
-public class SessionDetailActivity extends BaseActivity implements
+public class MovieDetailActivity extends BaseActivity implements
         LoaderManager.LoaderCallbacks<Movie>,
         ObservableScrollView.Callbacks {
-    private static final String TAG = LogUtils.makeLogTag(SessionDetailActivity.class);
+    private static final String TAG = LogUtils.makeLogTag(MovieDetailActivity.class);
 
     private static final float PHOTO_ASPECT_RATIO = 1.7777777f;
 
@@ -171,7 +170,8 @@ public class SessionDetailActivity extends BaseActivity implements
             return;
         }
 
-        mMovieId = extras.getInt("movieId");
+        mMovieId = Integer.parseInt(extras.getString("movieId"));
+
 
         mFABElevation = getResources().getDimensionPixelSize(R.dimen.fab_elevation);
         mMaxHeaderElevation = getResources().getDimensionPixelSize(
@@ -209,6 +209,11 @@ public class SessionDetailActivity extends BaseActivity implements
         mMovieOverview = (TextView) findViewById(R.id.movie_overview);
         mMovieGenres = (LinearLayout) findViewById(R.id.movie_genre);
         mMovieGenresContainer = (ViewGroup) findViewById(R.id.movie_genres_container);
+
+        //mAddScheduleButton = (CheckableFrameLayout) findViewById(R.id.add_schedule_button);
+
+        //System.out.println("TESTING ADDSCHEDULEBUTTON: " + mAddScheduleButton.isChecked());
+
 
         ViewCompat.setTransitionName(mPhotoView, TRANSITION_NAME_PHOTO);
 
@@ -286,7 +291,7 @@ public class SessionDetailActivity extends BaseActivity implements
             = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            mAddScheduleButtonHeightPixels = mAddScheduleButton.getHeight();
+            //mAddScheduleButtonHeightPixels = mAddScheduleButton.getHeight();
             recomputePhotoAndScrollingMetrics();
         }
     };
@@ -299,8 +304,8 @@ public class SessionDetailActivity extends BaseActivity implements
 
         float newTop = Math.max(mPhotoHeightPixels, scrollY);
         mHeaderBox.setTranslationY(newTop);
-        mAddScheduleButton.setTranslationY(newTop + mHeaderHeightPixels
-                - mAddScheduleButtonHeightPixels / 2);
+        //mAddScheduleButton.setTranslationY(newTop + mHeaderHeightPixels
+        //        - mAddScheduleButtonHeightPixels / 2);
 
         float gapFillProgress = 1;
         if (mPhotoHeightPixels != 0) {
@@ -310,8 +315,8 @@ public class SessionDetailActivity extends BaseActivity implements
         }
 
         ViewCompat.setElevation(mHeaderBox, gapFillProgress * mMaxHeaderElevation);
-        ViewCompat.setElevation(mAddScheduleButton, gapFillProgress * mMaxHeaderElevation
-                + mFABElevation);
+//        ViewCompat.setElevation(mAddScheduleButton, gapFillProgress * mMaxHeaderElevation
+//                + mFABElevation);
 
         // Move background photo (parallax effect)
         mPhotoViewContainer.setTranslationY(scrollY * 0.5f);
@@ -345,27 +350,27 @@ public class SessionDetailActivity extends BaseActivity implements
     }
 
 
-    private void showStarredDeferred(final boolean starred, final boolean allowAnimate) {
-        mDeferredUiOperations.add(new Runnable() {
-            @Override
-            public void run() {
-                showStarred(starred, allowAnimate);
-            }
-        });
-        //tryExecuteDeferredUiOperations();
-    }
+//    private void showStarredDeferred(final boolean starred, final boolean allowAnimate) {
+//        mDeferredUiOperations.add(new Runnable() {
+//            @Override
+//            public void run() {
+//                showStarred(starred, allowAnimate);
+//            }
+//        });
+//        //tryExecuteDeferredUiOperations();
+//    }
 
-    private void showStarred(boolean starred, boolean allowAnimate) {
-        mStarred = starred;
-
-        mAddScheduleButton.setChecked(mStarred, allowAnimate);
-
-        ImageView iconView = (ImageView) mAddScheduleButton.findViewById(R.id.add_schedule_icon);
-        getLUtils().setOrAnimatePlusCheckIcon(iconView, starred, allowAnimate);
-        mAddScheduleButton.setContentDescription(getString(starred
-                ? R.string.remove_from_schedule_desc
-                : R.string.add_to_schedule_desc));
-    }
+//    private void showStarred(boolean starred, boolean allowAnimate) {
+//        mStarred = starred;
+//
+//        mAddScheduleButton.setChecked(mStarred, allowAnimate);
+//
+//        ImageView iconView = (ImageView) mAddScheduleButton.findViewById(R.id.add_schedule_icon);
+//        getLUtils().setOrAnimatePlusCheckIcon(iconView, starred, allowAnimate);
+//        mAddScheduleButton.setContentDescription(getString(starred
+//                ? R.string.remove_from_schedule_desc
+//                : R.string.add_to_schedule_desc));
+//    }
 
 
 //    private void updateEmptyView() {
@@ -418,21 +423,21 @@ public class SessionDetailActivity extends BaseActivity implements
         mTitle.setText(mTitleString);
 
         // Movie rating
-        if(movieRating.isEmpty()) {
+        if (movieRating.isEmpty()) {
             mMovieRating.setVisibility(View.GONE);
         } else {
             mMovieRating.setText(movieRating);
         }
 
         // Movie runtime
-        if(movieRuntime.isEmpty()) {
+        if (movieRuntime.isEmpty()) {
             mMovieRuntime.setVisibility(View.GONE);
         } else {
             mMovieRuntime.setText(movieRuntime);
         }
 
 
-        if(movieOverview.isEmpty()) {
+        if (movieOverview.isEmpty()) {
             mMovieOverview.setVisibility(View.GONE);
         } else {
             mMovieOverview.setText(movieOverview);
@@ -464,12 +469,12 @@ public class SessionDetailActivity extends BaseActivity implements
 
         List<Genre> genresList = movie.genres;
 
-        if(!genresList.isEmpty()){
+        if (!genresList.isEmpty()) {
             mMovieGenresContainer.setVisibility(View.VISIBLE);
             mMovieGenres.removeAllViews();
             LayoutInflater inflater = LayoutInflater.from(this);
 
-            for(Genre genre: genresList) {
+            for (Genre genre : genresList) {
                 TextView chipView = (TextView) inflater.inflate(
                         R.layout.include_session_tag_chip, mMovieGenres, false);
                 chipView.setText(genre.name);
@@ -480,6 +485,8 @@ public class SessionDetailActivity extends BaseActivity implements
         }
 
         //updateEmptyView();
+
+        //mAddScheduleButton.setVisibility(View.VISIBLE);
 
         mHandler.post(new Runnable() {
             @Override

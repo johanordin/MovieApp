@@ -17,7 +17,6 @@
 package koma.movieapp.ui;
 
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,11 +24,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.CollectionView;
 import koma.movieapp.ui.widget.DrawShadowFrameLayout;
-import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
 
 import static koma.movieapp.util.LogUtils.*;
@@ -277,16 +274,16 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
 
     // TODO
     @Override
-    public void onSessionSelected(String sessionId, View clickedView) {
+    public void onSessionSelected(String movieId, View clickedView) {
 //        getLUtils().startActivityWithTransition(new Intent(Intent.ACTION_VIEW,
-//                        ScheduleContract.Sessions.buildSessionUri(sessionId)),
+//                        ScheduleContract.Sessions.buildSessionUri(movieId)),
 //                clickedView,
-//                SessionDetailActivity.TRANSITION_NAME_PHOTO);
+//                MovieDetailActivity.TRANSITION_NAME_PHOTO);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.putExtra("movieId", sessionId);
+        Intent intent = new Intent(this, MovieDetailActivity.class);
+        intent.putExtra("movieId", movieId);
 
-        getLUtils().startActivityWithTransition(intent,clickedView, SessionDetailActivity.TRANSITION_NAME_PHOTO);
+        getLUtils().startActivityWithTransition(intent,clickedView, MovieDetailActivity.TRANSITION_NAME_PHOTO);
 //
     }
 
