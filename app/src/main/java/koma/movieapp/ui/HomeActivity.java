@@ -94,7 +94,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     @Override
     public void onResume() {
         super.onResume();
-        checkShowStaleDataButterBar();
+        //checkShowStaleDataButterBar();
     }
 
     @Override
@@ -105,36 +105,36 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
         return super.canSwipeRefreshChildScrollUp();
     }
 
-    private void checkShowStaleDataButterBar() {
-        final boolean showingFilters = findViewById(R.id.filters_box) != null
-                && findViewById(R.id.filters_box).getVisibility() == View.VISIBLE;
-        final long now = UIUtils.getCurrentTime(this);
-        final boolean inSnooze = (now - mLastDataStaleUserActionTime < Config.STALE_DATA_WARNING_SNOOZE);
-        final long staleTime = now - PrefUtils.getLastSyncSucceededTime(this);
-        final long staleThreshold = Config.STALE_DATA_THRESHOLD;
-        final boolean isStale = (staleTime >= staleThreshold);
-        //final boolean bootstrapDone = PrefUtils.isDataBootstrapDone(this);
-        //final boolean mustShowBar = bootstrapDone && isStale && !inSnooze && !showingFilters;
-        final boolean mustShowBar = isStale && !inSnooze && !showingFilters;
-
-        if (!mustShowBar) {
-            mButterBar.setVisibility(View.GONE);
-        } else {
-            UIUtils.setUpButterBar(mButterBar, getString(R.string.data_stale_warning),
-                    getString(R.string.description_refresh), new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mButterBar.setVisibility(View.GONE);
-                            updateFragContentTopClearance();
-                            mLastDataStaleUserActionTime = UIUtils.getCurrentTime(
-                                    HomeActivity.this);
-                            requestDataRefresh();
-                        }
-                    }
-            );
-        }
-        updateFragContentTopClearance();
-    }
+//    private void checkShowStaleDataButterBar() {
+//        final boolean showingFilters = findViewById(R.id.filters_box) != null
+//                && findViewById(R.id.filters_box).getVisibility() == View.VISIBLE;
+//        final long now = UIUtils.getCurrentTime(this);
+//        final boolean inSnooze = (now - mLastDataStaleUserActionTime < Config.STALE_DATA_WARNING_SNOOZE);
+//        final long staleTime = now - PrefUtils.getLastSyncSucceededTime(this);
+//        final long staleThreshold = Config.STALE_DATA_THRESHOLD;
+//        final boolean isStale = (staleTime >= staleThreshold);
+//        //final boolean bootstrapDone = PrefUtils.isDataBootstrapDone(this);
+//        //final boolean mustShowBar = bootstrapDone && isStale && !inSnooze && !showingFilters;
+//        final boolean mustShowBar = isStale && !inSnooze && !showingFilters;
+//
+////        if (!mustShowBar) {
+////            mButterBar.setVisibility(View.GONE);
+////        } else {
+////            UIUtils.setUpButterBar(mButterBar, getString(R.string.data_stale_warning),
+////                    getString(R.string.description_refresh), new View.OnClickListener() {
+////                        @Override
+////                        public void onClick(View v) {
+////                            mButterBar.setVisibility(View.GONE);
+////                            updateFragContentTopClearance();
+////                            mLastDataStaleUserActionTime = UIUtils.getCurrentTime(
+////                                    HomeActivity.this);
+////                            //requestDataRefresh();
+////                        }
+////                    }
+////            );
+////        }
+//        updateFragContentTopClearance();
+//    }
 
     @Override
     protected int getSelfNavDrawerItem() {

@@ -615,7 +615,7 @@ public class MoviesFragment extends Fragment implements
                     }
                 });
             }
-//            // colored
+//            // colored filter on the images
 //            photoView.setColorFilter(mNoTrackBranding
 //                    ? new PorterDuffColorFilter(
 //                    getResources().getColor(R.color.no_track_branding_session_tile_overlay),
@@ -638,12 +638,12 @@ public class MoviesFragment extends Fragment implements
         // render title
         titleView.setText(movieTitle == null ? "?" : movieTitle);
 
-
+        // set the rating
         if (ratingView != null) {
             ratingView.setText(movieRating);
         }
 
-
+        // set the images
         mImageLoader.loadImage(Config.TMDB_IMAGE_BASE_URL + "w780" + movieBackdrop, photoView);
 
         final View finalPhotoView = photoView;

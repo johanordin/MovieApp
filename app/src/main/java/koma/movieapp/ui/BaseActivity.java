@@ -199,7 +199,7 @@ public abstract class BaseActivity extends ActionBarActivity implements
             mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    requestDataRefresh();
+                    //requestDataRefresh();
                 }
             });
             if (mSwipeRefreshLayout instanceof MultiSwipeRefreshLayout) {
@@ -460,7 +460,7 @@ public abstract class BaseActivity extends ActionBarActivity implements
                 HelpUtils.showAbout(this);
                 return true;
             case R.id.menu_refresh:
-                requestDataRefresh();
+                //requestDataRefresh();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -468,17 +468,17 @@ public abstract class BaseActivity extends ActionBarActivity implements
 
 
 
-    protected void requestDataRefresh() {
-        //Account activeAccount = AccountUtils.getActiveAccount(this);
-        //ContentResolver contentResolver = getContentResolver();
-/*        if (contentResolver.isSyncActive(activeAccount, ScheduleContract.CONTENT_AUTHORITY)) {
-            LOGD(TAG, "Ignoring manual sync request because a sync is already in progress.");
-            return;
-        }*/
-        mManualSyncRequest = true;
-        LOGD(TAG, "Requesting manual data refresh.");
-        //SyncHelper.requestManualSync(activeAccount);
-    }
+//    protected void requestDataRefresh() {
+//        //Account activeAccount = AccountUtils.getActiveAccount(this);
+//        //ContentResolver contentResolver = getContentResolver();
+///*        if (contentResolver.isSyncActive(activeAccount, ScheduleContract.CONTENT_AUTHORITY)) {
+//            LOGD(TAG, "Ignoring manual sync request because a sync is already in progress.");
+//            return;
+//        }*/
+//        mManualSyncRequest = true;
+//        LOGD(TAG, "Requesting manual data refresh.");
+//        //SyncHelper.requestManualSync(activeAccount);
+//    }
 
 
     private void goToNavDrawerItem(int item) {
