@@ -365,9 +365,9 @@ public class MoviesFragment extends Fragment implements
         int token = loader.getId();
 
         LOGD(TAG, "Loader finished: " + (token == NOW_PLAYING_TOKEN ? "now playing" :
-                token == UPCOMING_TOKEN ? "upcoming" : "unknown"));
+                token == UPCOMING_TOKEN ? "upcoming" : token == POPULAR_TOKEN ? "popular" : "unknown"));
 
-        if (token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
+        if (token == POPULAR_TOKEN || token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
 
             mMovieList = data;
 
@@ -789,7 +789,9 @@ public class MoviesFragment extends Fragment implements
                 moviesService = tmdb.moviesService();
                 System.out.println("hej!!!!!!!!!!!!   " + getId());
                 switch (this.getId()) {
-
+                    case POPULAR_TOKEN:
+                        resultsPage = moviesService.popular();
+                        break;
                     case NOW_PLAYING_TOKEN:
                         resultsPage = moviesService.nowPlaying();
                         break;
@@ -921,6 +923,7 @@ public class MoviesFragment extends Fragment implements
 
 
     //private static final int TAG_METADATA_TOKEN = 0x4;
-    private static final int NOW_PLAYING_TOKEN = 0x0;
+    private static final int POPULAR_TOKEN = 0x0;
+    private static final int NOW_PLAYING_TOKEN = 0x1;
     private static final int UPCOMING_TOKEN = 0x2;
 }

@@ -162,6 +162,8 @@ public class ImageLoader {
         @Override
         protected String getUrl(String model, int width, int height) {
             Matcher m = PATTERN.matcher(model);
+
+            System.out.println("IMAGELOADER TEST: " + model);
             int bestBucket = 0;
             if (m.find()) {
                 String[] found = m.group(1).split("-");
