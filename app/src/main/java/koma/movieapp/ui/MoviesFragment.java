@@ -77,12 +77,9 @@ import static koma.movieapp.util.LogUtils.makeLogTag;
 public class MoviesFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<ArrayList<Movie>>, CollectionViewCallbacks {
 
-    private static final String TAG = makeLogTag(MoviesFragment.class);
-
     // Disable track branding
-    public static final String EXTRA_NO_TRACK_BRANDING =
-            "com.google.android.iosched.extra.NO_TRACK_BRANDING";
-
+    public static final String EXTRA_NO_TRACK_BRANDING = "com.google.android.iosched.extra.NO_TRACK_BRANDING";
+    private static final String TAG = makeLogTag(MoviesFragment.class);
     private static final String STATE_SESSION_QUERY_TOKEN = "session_query_token";
     private static final String STATE_ARGUMENTS = "arguments";
 
@@ -90,58 +87,6 @@ public class MoviesFragment extends Fragment implements
      * The handler message for updating the search query.
      */
     private static final int MESSAGE_QUERY_UPDATE = 1;
-    /**
-     * The delay before actual requerying in millisecs.
-     */
-    private static final int QUERY_UPDATE_DELAY_MILLIS = 100;
-    /**
-     * The number of rows ahead to preload images for
-     */
-    private static final int ROWS_TO_PRELOAD = 2;
-
-    private static final int ANIM_DURATION = 250;
-    private static final int CARD_DISMISS_ACTION_DELAY = MessageCardView.ANIM_DURATION - 50;
-
-    private Context mAppContext;
-
-    //private ImageLoader mImageLoader;
-
-    // the cursor whose data we are currently displaying
-    private int mSessionQueryToken;
-    //private Uri mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
-    private Cursor mCursor;
-
-    private ArrayList<Movie> mMovieList;
-
-    private boolean mIsSearchCursor;
-    private boolean mNoTrackBranding;
-
-    // this variable is relevant when we start the sessions loader, and indicates the desired
-    // behavior when load finishes: if true, this is a full reload (for example, because filters
-    // have been changed); if not, it's just a refresh because data has changed.
-    private boolean mSessionDataIsFullReload = false;
-
-    private ImageLoader mImageLoader;
-    private int mDefaultMovieColor;
-
-    private CollectionView mCollectionView;
-    private TextView mEmptyView;
-    private View mLoadingView;
-
-    private boolean mWasPaused = false;
-
-    private static final int HERO_GROUP_ID = 123;
-
-    private Bundle mArguments;
-
-    private DateFormat mDateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-    private DateFormat mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
-
-    private static final String CARD_ANSWER_ATTENDING_REMOTELY = "CARD_ANSWER_ATTENDING_REMOTELY";
-    private static final String CARD_ANSWER_ATTENDING_IN_PERSON = "CARD_ANSWER_ATTENDING_IN_PERSON";
-    private static final String CARD_ANSWER_YES = "CARD_ANSWER_YES";
-    private static final String CARD_ANSWER_NO = "CARD_ANSWER_NO";
-
     private Handler mHandler = new Handler() {
 
         @Override
@@ -155,9 +100,82 @@ public class MoviesFragment extends Fragment implements
         }
 
     };
+    /**
+     * The delay before actual requerying in millisecs.
+     */
+    private static final int QUERY_UPDATE_DELAY_MILLIS = 100;
+    /**
+     * The number of rows ahead to preload images for
+     */
+    private static final int ROWS_TO_PRELOAD = 2;
+    private static final int ANIM_DURATION = 250;
+    private static final int CARD_DISMISS_ACTION_DELAY = MessageCardView.ANIM_DURATION - 50;
 
+    //private ImageLoader mImageLoader;
+    private static final int HERO_GROUP_ID = 123;
+    private static final String CARD_ANSWER_ATTENDING_REMOTELY = "CARD_ANSWER_ATTENDING_REMOTELY";
+    private static final String CARD_ANSWER_ATTENDING_IN_PERSON = "CARD_ANSWER_ATTENDING_IN_PERSON";
+    private static final String CARD_ANSWER_YES = "CARD_ANSWER_YES";
+    private static final String CARD_ANSWER_NO = "CARD_ANSWER_NO";
+
+    //private static final int TAG_METADATA_TOKEN = 0x4;
+    private static final int POPULAR_TOKEN = 0x0;
+    private static final int NOW_PLAYING_TOKEN = 0x1;
+    private static final int UPCOMING_TOKEN = 0x2;
+
+    private static Callbacks sDummyCallbacks = new Callbacks() {
+        @Override
+        public void onSessionSelected(String sessionId, View clickedView) {
+        }
+
+    };
+    private Callbacks mCallbacks = sDummyCallbacks;
+
+    private Context mAppContext;
+
+    // the cursor whose data we are currently displaying
+    private int mSessionQueryToken;
+
+    //private Uri mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
+    private Cursor mCursor;
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener mPrefChangeListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+                    if (isAdded()) {
+                        if (PrefUtils.PREF_LOCAL_TIMES.equals(key)) {
+                            updateCollectionView();
+                        } else if (PrefUtils.PREF_ATTENDEE_AT_VENUE.equals(key)) {
+                            if (mCursor != null) {
+                                reloadMovieData(true);
+                            }
+                        }
+                    }
+                }
+            };
+    private ArrayList<Movie> mMovieList;
+    private boolean mIsSearchCursor;
+    private boolean mNoTrackBranding;
+
+    // this variable is relevant when we start the sessions loader, and indicates the desired
+    // behavior when load finishes: if true, this is a full reload (for example, because filters
+    // have been changed); if not, it's just a refresh because data has changed.
+    private boolean mSessionDataIsFullReload = false;
+
+    private ImageLoader mImageLoader;
+    private int mDefaultMovieColor;
+    private CollectionView mCollectionView;
+    private TextView mEmptyView;
+    private View mLoadingView;
+    private boolean mWasPaused = false;
+    private Bundle mArguments;
+
+    private DateFormat mDateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+    private DateFormat mTimeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
     private Preloader mPreloader;
-
+    private StringBuilder mBuffer = new StringBuilder();
+    private int mMaxDataIndexAnimated = 0;
 
     public boolean canCollectionViewScrollUp() {
         return ViewCompat.canScrollVertically(mCollectionView, -1);
@@ -203,23 +221,10 @@ public class MoviesFragment extends Fragment implements
         }
     }
 
-    public interface Callbacks {
-        public void onSessionSelected(String sessionId, View clickedView);
-    }
-
-    private static Callbacks sDummyCallbacks = new Callbacks() {
-        @Override
-        public void onSessionSelected(String sessionId, View clickedView) {
-        }
-
-    };
-
-    private Callbacks mCallbacks = sDummyCallbacks;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//
+
         if (mImageLoader == null) {
             mImageLoader = new ImageLoader(this.getActivity());
         }
@@ -240,13 +245,10 @@ public class MoviesFragment extends Fragment implements
 
                 getLoaderManager().initLoader(mSessionQueryToken, null, MoviesFragment.this);
                 //getLoaderManager().initLoader(0, null, this);
-
-
             }
         }
 
     }
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -288,7 +290,6 @@ public class MoviesFragment extends Fragment implements
         }*/
 
         mNoTrackBranding = mArguments.getBoolean(EXTRA_NO_TRACK_BRANDING);
-
 
         //LOGD(TAG, "MoviesFragment reloading, uri=" + mCurrentUri);
 
@@ -344,6 +345,7 @@ public class MoviesFragment extends Fragment implements
     @Override
     public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
+
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
         Uri sessionsUri = intent.getData();
 
@@ -377,23 +379,8 @@ public class MoviesFragment extends Fragment implements
     public void onLoaderReset(Loader<ArrayList<Movie>> loader) {
     }
 
-    private final SharedPreferences.OnSharedPreferenceChangeListener mPrefChangeListener =
-            new SharedPreferences.OnSharedPreferenceChangeListener() {
-                @Override
-                public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-                    if (isAdded()) {
-                        if (PrefUtils.PREF_LOCAL_TIMES.equals(key)) {
-                            updateCollectionView();
-                        } else if (PrefUtils.PREF_ATTENDEE_AT_VENUE.equals(key)) {
-                            if (mCursor != null) {
-                                reloadMovieData(true);
-                            }
-                        }
-                    }
-                }
-            };
-
     private void updateCollectionView() {
+
         if (mMovieList.isEmpty()) {
             LOGD(TAG, "updateCollectionView: not ready yet... no iterator");
             // not ready
@@ -444,11 +431,9 @@ public class MoviesFragment extends Fragment implements
 
     }
 
-
     // Creates the CollectionView groups based on the cursor data.
     private CollectionView.Inventory prepareInventory() {
         LOGD(TAG, "Preparing collection view inventory.");
-
 
         ArrayList<CollectionView.InventoryGroup> mainGroup =
                 new ArrayList<CollectionView.InventoryGroup>();
@@ -456,12 +441,8 @@ public class MoviesFragment extends Fragment implements
                 new HashMap<String, CollectionView.InventoryGroup>();
 
         int dataIndex = -1;
-
-        final boolean expandedMode = true;
-
         int nextGroupId = HERO_GROUP_ID + 1000;
-
-
+        final boolean expandedMode = true;
         final int displayCols = getResources().getInteger(R.integer.explore_2nd_level_grid_columns);
 
         mPreloader.setDisplayCols(displayCols);
@@ -474,16 +455,13 @@ public class MoviesFragment extends Fragment implements
 //                new CollectionView.InventoryGroup(0)
 //                        .setDisplayCols(displayCols);
 
-        for(Movie movie : mMovieList) {
+        for (Movie movie : mMovieList) {
 
             ++dataIndex;
 
             String groupLabel;
-
             groupLabel = "Movies";
-
             CollectionView.InventoryGroup group;
-
 
             // "list" and "map" are just shorthand variables pointing to the right list and map
             ArrayList<CollectionView.InventoryGroup> list = mainGroup;
@@ -505,8 +483,6 @@ public class MoviesFragment extends Fragment implements
 
             LOGV(TAG, "...adding to group '" + groupLabel + "' with custom data index " + dataIndex);
             group.addItemWithCustomDataIndex(dataIndex);
-
-
         }
 
         ArrayList<CollectionView.InventoryGroup> groups = new ArrayList<>();
@@ -519,10 +495,7 @@ public class MoviesFragment extends Fragment implements
         }
 
         return inventory;
-
-
     }
-
 
     @Override
     public View newCollectionHeaderView(Context context, ViewGroup parent) {
@@ -539,6 +512,39 @@ public class MoviesFragment extends Fragment implements
         }
     }
 
+/*
+    private void setupLocalOrRemoteCard(final MessageCardView card) {
+        card.setText(getString(R.string.question_local_or_remote));
+        card.setButton(0, getString(R.string.attending_remotely), CARD_ANSWER_ATTENDING_REMOTELY,
+                false, 0);
+        card.setButton(1, getString(R.string.attending_in_person), CARD_ANSWER_ATTENDING_IN_PERSON,
+                true, 0);
+        final Context context = getActivity().getApplicationContext();
+        final Activity activity = getActivity();
+        card.setListener(new MessageCardView.OnMessageCardButtonClicked() {
+            @Override
+            public void onMessageCardButtonClicked(final String tag) {
+                final boolean inPerson = CARD_ANSWER_ATTENDING_IN_PERSON.equals(tag);
+                card.dismiss(true);
+
+                if (activity != null) {
+                    Toast.makeText(activity, inPerson ? R.string.explore_attending_in_person_toast
+                            : R.string.explore_attending_remotely_toast, Toast.LENGTH_LONG).show();
+                }
+
+                // post delayed to give card time to animate
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        PrefUtils.setAttendeeAtVenue(context, inPerson);
+                        PrefUtils.markAnsweredLocalOrRemote(context);
+                    }
+                }, CARD_DISMISS_ACTION_DELAY);
+            }
+        });
+        card.show();
+    }
+*/
 
     @Override
     public View newCollectionItemView(Context context, int groupId, ViewGroup parent) {
@@ -558,14 +564,8 @@ public class MoviesFragment extends Fragment implements
         return inflater.inflate(layoutId, parent, false);
     }
 
-    private StringBuilder mBuffer = new StringBuilder();
-
-    private int mMaxDataIndexAnimated = 0;
-
-
     @Override
     public void bindCollectionItemView(Context context, View view, int groupId, int indexInGroup, int dataIndex, Object tag) {
-
 
         if (mMovieList.isEmpty() || mMovieList.get(dataIndex) == null) {
             return;
@@ -624,11 +624,11 @@ public class MoviesFragment extends Fragment implements
         // when we load a photo, it will fade in from transparent so the
         // background of the container must be the session color to avoid a white flash
         ViewParent parent = photoView.getParent();
-//        if (parent != null && parent instanceof View) {
-//            ((View) parent).setBackgroundColor(darkMovieColor);
-//        } else {
-//            photoView.setBackgroundColor(darkMovieColor);
-//        }
+        if (parent != null && parent instanceof View) {
+            ((View) parent).setBackgroundColor(darkMovieColor);
+        } else {
+            photoView.setBackgroundColor(darkMovieColor);
+        }
 
         // render title
         titleView.setText(movieTitle == null ? "?" : movieTitle);
@@ -656,117 +656,22 @@ public class MoviesFragment extends Fragment implements
 
     }
 
-
-
-
-/*
-    private void setupLocalOrRemoteCard(final MessageCardView card) {
-        card.setText(getString(R.string.question_local_or_remote));
-        card.setButton(0, getString(R.string.attending_remotely), CARD_ANSWER_ATTENDING_REMOTELY,
-                false, 0);
-        card.setButton(1, getString(R.string.attending_in_person), CARD_ANSWER_ATTENDING_IN_PERSON,
-                true, 0);
-        final Context context = getActivity().getApplicationContext();
-        final Activity activity = getActivity();
-        card.setListener(new MessageCardView.OnMessageCardButtonClicked() {
-            @Override
-            public void onMessageCardButtonClicked(final String tag) {
-                final boolean inPerson = CARD_ANSWER_ATTENDING_IN_PERSON.equals(tag);
-                card.dismiss(true);
-
-                if (activity != null) {
-                    Toast.makeText(activity, inPerson ? R.string.explore_attending_in_person_toast
-                            : R.string.explore_attending_remotely_toast, Toast.LENGTH_LONG).show();
-                }
-
-                // post delayed to give card time to animate
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        PrefUtils.setAttendeeAtVenue(context, inPerson);
-                        PrefUtils.markAnsweredLocalOrRemote(context);
-                    }
-                }, CARD_DISMISS_ACTION_DELAY);
-            }
-        });
-        card.show();
-    }
-*/
-
-
     private void animateSessionAppear(final View view) {
     }
 
 
-    private class Preloader extends ListPreloader<String> {
-
-        private int[] photoDimens;
-        private int displayCols;
-
-        public Preloader(int maxPreload) {
-            super(maxPreload);
-        }
-
-        public void setDisplayCols(int displayCols) {
-            this.displayCols = displayCols;
-        }
-
-        public boolean isDimensSet() {
-            return photoDimens != null;
-        }
-
-        public void setDimens(int width, int height) {
-            if (photoDimens == null) {
-                photoDimens = new int[]{width, height};
-            }
-        }
-
-        @Override
-        protected int[] getDimensions(String s) {
-            return photoDimens;
-        }
-
-        @Override
-        protected List<String> getItems(int start, int end) {
-            // Our start and end are rows, we need to adjust them into data columns
-            // The keynote is 1 row with 1 data item, so we need to adjust.
-            int keynoteDataOffset = (displayCols - 1);
-            int dataStart = start * displayCols - keynoteDataOffset;
-            int dataEnd = end * displayCols - keynoteDataOffset;
-            List<String> urls = new ArrayList<String>();
-
-            if (!mMovieList.isEmpty()) {
-                for(Movie movie : mMovieList) {
-                    String backdrop;
-                    backdrop = movie.backdrop_path;
-                    //LOGD(TAG, "PRELOADER getItems: Backdrop =  " + backdrop);
-
-                    System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
-
-                    urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
-
-                }
-            }
-
-            return urls;
-
-        }
-
-        @Override
-        protected GenericRequestBuilder getRequestBuilder(String url) {
-            return mImageLoader.beginImageLoad(url, null, true /*crop*/);
-        }
+    public interface Callbacks {
+        public void onSessionSelected(String sessionId, View clickedView);
     }
 
     private static class MovieListLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
         ArrayList<Movie> mMovies;
-        int apiID;
         Tmdb tmdb;
 
+        // Constructor
         public MovieListLoader(Context context) {
             super(context);
-            //this.apiID = apiID;
 
             tmdb = new Tmdb();
             tmdb.setApiKey(Config.TMDB_API_KEY);
@@ -802,15 +707,11 @@ public class MoviesFragment extends Fragment implements
                 }
                 if (resultsPage != null) {
 
-
                     List<Movie> tempList = resultsPage.results;
-                    for(int i = 0; i < tempList.size(); i++) {
+                    for (int i = 0; i < tempList.size(); i++) {
                         movieList.add(tempList.get(i));
                     }
-
-
                 }
-
             } catch (Exception e) {
                 LOGE(TAG, "Network error");
             }
@@ -906,7 +807,6 @@ public class MoviesFragment extends Fragment implements
                 onReleaseResources(mMovies);
                 mMovies = null;
             }
-
         }
 
         /**
@@ -919,9 +819,63 @@ public class MoviesFragment extends Fragment implements
         }
     }
 
+    private class Preloader extends ListPreloader<String> {
 
-    //private static final int TAG_METADATA_TOKEN = 0x4;
-    private static final int POPULAR_TOKEN = 0x0;
-    private static final int NOW_PLAYING_TOKEN = 0x1;
-    private static final int UPCOMING_TOKEN = 0x2;
+        private int[] photoDimens;
+        private int displayCols;
+
+        public Preloader(int maxPreload) {
+            super(maxPreload);
+        }
+
+        public void setDisplayCols(int displayCols) {
+            this.displayCols = displayCols;
+        }
+
+        public boolean isDimensSet() {
+            return photoDimens != null;
+        }
+
+        public void setDimens(int width, int height) {
+            if (photoDimens == null) {
+                photoDimens = new int[]{width, height};
+            }
+        }
+
+        @Override
+        protected int[] getDimensions(String s) {
+            return photoDimens;
+        }
+
+        @Override
+        protected List<String> getItems(int start, int end) {
+            // Our start and end are rows, we need to adjust them into data columns
+            // The keynote is 1 row with 1 data item, so we need to adjust.
+            int keynoteDataOffset = (displayCols - 1);
+            int dataStart = start * displayCols - keynoteDataOffset;
+            int dataEnd = end * displayCols - keynoteDataOffset;
+            List<String> urls = new ArrayList<String>();
+
+            if (!mMovieList.isEmpty()) {
+                for (Movie movie : mMovieList) {
+                    String backdrop;
+                    backdrop = movie.backdrop_path;
+                    //LOGD(TAG, "PRELOADER getItems: Backdrop =  " + backdrop);
+
+                    System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
+
+                    urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
+
+                }
+            }
+
+            return urls;
+
+        }
+
+        @Override
+        protected GenericRequestBuilder getRequestBuilder(String url) {
+            return mImageLoader.beginImageLoad(url, null, true /*crop*/);
+        }
+    }
 }

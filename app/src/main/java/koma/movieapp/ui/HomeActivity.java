@@ -36,15 +36,11 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
 
     // How is this Activity being used?
     private static final int MODE_HOME = 0; // as top-level "Home" screen
+    private int mMode = MODE_HOME;
     private static final int MODE_TIME_FIT = 1; // showing sessions that fit in a time interval
-
     private static final String STATE_FILTER_0 = "STATE_FILTER_0";
     private static final String STATE_FILTER_1 = "STATE_FILTER_1";
     private static final String STATE_FILTER_2 = "STATE_FILTER_2";
-
-
-    private int mMode = MODE_HOME;
-
     private final static String SCREEN_LABEL = "Explore";
 
     private boolean mSpinnerConfigured = false;
@@ -218,7 +214,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     }
 
 
-    // Updates the Sessions fragment content top clearance to take our chrome into account
+    // Updates the Movies fragment content top clearance to take our chrome into account
     private void updateFragContentTopClearance() {
         MoviesFragment frag = (MoviesFragment) getFragmentManager().findFragmentById(
                 R.id.movies_fragment);
@@ -257,7 +253,6 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-
         getMenuInflater().inflate(R.menu.home, menu);
         return true;
     }
@@ -283,7 +278,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra("movieId", movieId);
 
-        getLUtils().startActivityWithTransition(intent,clickedView, MovieDetailActivity.TRANSITION_NAME_PHOTO);
+        getLUtils().startActivityWithTransition(intent, clickedView, MovieDetailActivity.TRANSITION_NAME_PHOTO);
 //
     }
 
