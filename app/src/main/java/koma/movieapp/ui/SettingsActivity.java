@@ -44,7 +44,7 @@ public class SettingsActivity extends BaseActivity {
             public void onClick(View view) {
                 navigateUpToFromChild(SettingsActivity.this,
                         IntentCompat.makeMainActivity(new ComponentName(SettingsActivity.this,
-                                HomeActivity.class)));
+                                PopularMoviesActivity.class)));
             }
         });
 

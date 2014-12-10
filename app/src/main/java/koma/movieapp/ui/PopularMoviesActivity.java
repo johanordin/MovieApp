@@ -31,8 +31,8 @@ import koma.movieapp.util.UIUtils;
 
 import static koma.movieapp.util.LogUtils.makeLogTag;
 
-public class HomeActivity extends BaseActivity implements MoviesFragment.Callbacks {
-    private static final String TAG = makeLogTag(HomeActivity.class);
+public class PopularMoviesActivity extends BaseActivity implements MoviesFragment.Callbacks {
+    private static final String TAG = makeLogTag(PopularMoviesActivity.class);
 
     // How is this Activity being used?
     private static final int MODE_HOME = 0; // as top-level "Home" screen
@@ -149,6 +149,7 @@ public class HomeActivity extends BaseActivity implements MoviesFragment.Callbac
                 R.id.movies_fragment);
         if (mMoviesFrag != null && savedInstanceState == null) {
             Bundle args = intentToFragmentArguments(getIntent());
+            args.putString("title", "Popular Movies");
             mMoviesFrag.reloadFromArguments(args);
         }
 

@@ -14,14 +14,13 @@
   limitations under the License.
   -->
 
-<koma.movieapp.ui.widget.ObservableScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<koma.movieapp.ui.widget.ObservableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:overScrollMode="never"
+    android:background="#fff"
     android:fillViewport="true"
-    android:background="#fff">
+    android:overScrollMode="never">
 
     <FrameLayout
         android:id="@+id/scroll_view_child"
@@ -30,7 +29,8 @@
         android:clipChildren="false">
 
         <!-- Background photo -->
-        <FrameLayout android:id="@+id/session_photo_container"
+        <FrameLayout
+            android:id="@+id/session_photo_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -41,58 +41,65 @@
                 android:scaleType="centerCrop" />
         </FrameLayout>
 
-        <LinearLayout android:id="@+id/details_container"
-            android:orientation="vertical"
+        <LinearLayout
+            android:id="@+id/details_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#fff"
-            android:paddingTop="16dp"
-            android:paddingRight="@dimen/keyline_1"
+            android:clipToPadding="false"
+            android:orientation="vertical"
             android:paddingBottom="@dimen/session_details_extra_space_bottom"
-            android:clipToPadding="false">
+            android:paddingRight="@dimen/keyline_1"
+            android:paddingTop="16dp">
 
-            <TextView android:id="@+id/time_hint"
-                android:visibility="gone"
+            <TextView
+                android:id="@+id/time_hint"
+                style="@style/SessionTimeHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
                 android:layout_marginBottom="8dp"
-                style="@style/SessionTimeHint" />
+                android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                android:visibility="gone" />
 
+            <!-- Overview header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="@string/overview_title"
+                android:layout_marginLeft="@dimen/keyline_2_session_detail"
                 android:ellipsize="end"
-                android:textSize="16sp"
-                android:textColor="@color/body_text_2_inverse"
+                android:text="@string/overview_title"
                 android:textAlignment="viewStart"
-                />
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp" />
 
-            <TextView android:id="@+id/movie_overview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                android:layout_marginBottom="16dp"
+            <!-- Overview -->
+            <TextView
+                android:id="@+id/movie_overview"
                 style="@style/TextBody"
-                />
-
-
-            <HorizontalScrollView android:id="@+id/movie_genres_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="@dimen/keyline_2_session_detail" />
+
+
+            <!-- Genres container -->
+            <HorizontalScrollView
+                android:id="@+id/movie_genres_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                android:scrollbars="none"
-                android:requiresFadingEdge="horizontal"
                 android:fadingEdgeLength="16dp"
-                android:layout_marginBottom="16dp">
+                android:requiresFadingEdge="horizontal"
+                android:scrollbars="none">
 
-                <LinearLayout android:id="@+id/movie_genre"
-                    android:orientation="horizontal"
+                <!-- Genre -->
+                <LinearLayout
+                    android:id="@+id/movie_genre"
                     android:layout_width="wrap_content"
-                    android:layout_height="32dp" />
+                    android:layout_height="32dp"
+                    android:orientation="horizontal" />
             </HorizontalScrollView>
-
 
 
         </LinearLayout>
@@ -110,47 +117,133 @@
             <include layout="@layout/toolbar_actionbar" />
 
             <!-- Movie title -->
-            <TextView android:layout_height="wrap_content"
+            <TextView
+                android:id="@+id/movie_title"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
                 android:layout_marginLeft="@dimen/keyline_2_session_detail"
                 android:layout_marginRight="@dimen/keyline_1"
-                android:text="@string/placeholder_movie_title"
-                android:id="@+id/movie_title"
-                android:maxLines="4"
                 android:ellipsize="end"
-                android:textSize="@dimen/text_size_xxlarge"
-                android:lineSpacingMultiplier="1.1"
-                android:textStyle="@integer/font_textStyle_medium"
                 android:fontFamily="@string/font_fontFamily_medium"
+                android:lineSpacingMultiplier="1.1"
+                android:maxLines="4"
+                android:text="@string/placeholder_movie_title"
+                android:textAlignment="viewStart"
                 android:textColor="@color/body_text_1_inverse"
-                android:textAlignment="viewStart" />
+                android:textSize="@dimen/text_size_xxlarge"
+                android:textStyle="@integer/font_textStyle_medium" />
 
-            <!-- Movie rating -->
-            <TextView android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                android:layout_marginRight="@dimen/keyline_1"
-                android:text="@string/placeholder_session_subtitle"
-                android:id="@+id/movie_rating"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textSize="16sp"
-                android:textColor="@color/body_text_2_inverse"
-                android:textAlignment="viewStart" />
 
-            <TextView android:layout_height="wrap_content"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                android:layout_marginRight="@dimen/keyline_1"
-                android:id="@+id/movie_runtime"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textSize="16sp"
-                android:textColor="@color/body_text_2_inverse"
-                android:textAlignment="viewStart" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Movie rating -->
+                <TextView
+                    android:id="@+id/movie_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:layout_marginRight="@dimen/keyline_1"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="@string/placeholder_session_subtitle"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_2_inverse"
+                    android:textSize="@dimen/text_size_medium" />
+
+
+                <!-- Movie runtime -->
+                <TextView
+                    android:id="@+id/movie_runtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:layout_marginRight="@dimen/keyline_1"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_2_inverse"
+                    android:textSize="@dimen/text_size_medium" />
+
+
+            </LinearLayout>
+
+<!--
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                &lt;!&ndash; Movie rating header &ndash;&gt;
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:ellipsize="end"
+                    android:text="@string/rating_title"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_1_inverse"
+                    android:textSize="16sp" />
+
+
+                &lt;!&ndash; Movie rating &ndash;&gt;
+                <TextView
+                    android:id="@+id/movie_rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:layout_marginRight="@dimen/keyline_1"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:text="@string/placeholder_session_subtitle"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_2_inverse"
+                    android:textSize="@dimen/text_size_medium" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                &lt;!&ndash; Movie rating header &ndash;&gt;
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:ellipsize="end"
+                    android:text="@string/runtime_title"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_1_inverse"
+                    android:textSize="16sp" />
+
+                &lt;!&ndash; Movie runtime &ndash;&gt;
+                <TextView
+                    android:id="@+id/movie_runtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:layout_marginRight="@dimen/keyline_1"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/body_text_2_inverse"
+                    android:textSize="@dimen/text_size_medium" />
+
+
+            </LinearLayout>-->
+
 
         </LinearLayout>
+
+
+        <!-- FAB -->
+        <include layout="@layout/include_add_schedule_fab" />
 
 
     </FrameLayout>

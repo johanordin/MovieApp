@@ -210,9 +210,7 @@ public class MovieDetailActivity extends BaseActivity implements
         mMovieGenres = (LinearLayout) findViewById(R.id.movie_genre);
         mMovieGenresContainer = (ViewGroup) findViewById(R.id.movie_genres_container);
 
-        //mAddScheduleButton = (CheckableFrameLayout) findViewById(R.id.add_schedule_button);
-
-        //System.out.println("TESTING ADDSCHEDULEBUTTON: " + mAddScheduleButton.isChecked());
+        mAddScheduleButton = (CheckableFrameLayout) findViewById(R.id.add_schedule_button);
 
 
         ViewCompat.setTransitionName(mPhotoView, TRANSITION_NAME_PHOTO);
@@ -224,7 +222,7 @@ public class MovieDetailActivity extends BaseActivity implements
     @Override
     public Intent getParentActivityIntent() {
         // TODO(mangini): make this Activity navigate up to the right screen depending on how it was launched
-        return new Intent(this, HomeActivity.class);
+        return new Intent(this, PopularMoviesActivity.class);
     }
 
     private void setupFloatingWindow() {
@@ -291,7 +289,7 @@ public class MovieDetailActivity extends BaseActivity implements
             = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            //mAddScheduleButtonHeightPixels = mAddScheduleButton.getHeight();
+            mAddScheduleButtonHeightPixels = mAddScheduleButton.getHeight();
             recomputePhotoAndScrollingMetrics();
         }
     };
@@ -304,8 +302,8 @@ public class MovieDetailActivity extends BaseActivity implements
 
         float newTop = Math.max(mPhotoHeightPixels, scrollY);
         mHeaderBox.setTranslationY(newTop);
-        //mAddScheduleButton.setTranslationY(newTop + mHeaderHeightPixels
-        //        - mAddScheduleButtonHeightPixels / 2);
+        mAddScheduleButton.setTranslationY(newTop + mHeaderHeightPixels
+                - mAddScheduleButtonHeightPixels / 2);
 
         float gapFillProgress = 1;
         if (mPhotoHeightPixels != 0) {
@@ -315,8 +313,8 @@ public class MovieDetailActivity extends BaseActivity implements
         }
 
         ViewCompat.setElevation(mHeaderBox, gapFillProgress * mMaxHeaderElevation);
-//        ViewCompat.setElevation(mAddScheduleButton, gapFillProgress * mMaxHeaderElevation
-//                + mFABElevation);
+        ViewCompat.setElevation(mAddScheduleButton, gapFillProgress * mMaxHeaderElevation
+                + mFABElevation);
 
         // Move background photo (parallax effect)
         mPhotoViewContainer.setTranslationY(scrollY * 0.5f);
@@ -360,17 +358,17 @@ public class MovieDetailActivity extends BaseActivity implements
 //        //tryExecuteDeferredUiOperations();
 //    }
 
-//    private void showStarred(boolean starred, boolean allowAnimate) {
-//        mStarred = starred;
-//
-//        mAddScheduleButton.setChecked(mStarred, allowAnimate);
-//
-//        ImageView iconView = (ImageView) mAddScheduleButton.findViewById(R.id.add_schedule_icon);
-//        getLUtils().setOrAnimatePlusCheckIcon(iconView, starred, allowAnimate);
-//        mAddScheduleButton.setContentDescription(getString(starred
-//                ? R.string.remove_from_schedule_desc
-//                : R.string.add_to_schedule_desc));
-//    }
+    private void showStarred(boolean starred, boolean allowAnimate) {
+        mStarred = starred;
+
+        mAddScheduleButton.setChecked(mStarred, allowAnimate);
+
+        ImageView iconView = (ImageView) mAddScheduleButton.findViewById(R.id.add_schedule_icon);
+        getLUtils().setOrAnimatePlusCheckIcon(iconView, starred, allowAnimate);
+        mAddScheduleButton.setContentDescription(getString(starred
+                ? R.string.remove_from_schedule_desc
+                : R.string.add_to_schedule_desc));
+    }
 
 
 //    private void updateEmptyView() {
@@ -383,7 +381,7 @@ public class MovieDetailActivity extends BaseActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-//        getMenuInflater().inflate(R.menu.session_detail, menu);
+        getMenuInflater().inflate(R.menu.session_detail, menu);
 //        mShareMenuItem = menu.findItem(R.id.menu_share);
 
         return true;
@@ -426,14 +424,14 @@ public class MovieDetailActivity extends BaseActivity implements
         if (movieRating.isEmpty()) {
             mMovieRating.setVisibility(View.GONE);
         } else {
-            mMovieRating.setText(movieRating);
+            mMovieRating.setText(movieRating + "/10");
         }
 
         // Movie runtime
         if (movieRuntime.isEmpty()) {
             mMovieRuntime.setVisibility(View.GONE);
         } else {
-            mMovieRuntime.setText(movieRuntime);
+            mMovieRuntime.setText(movieRuntime + " " + getResources().getString(R.string.minutes));
         }
 
 
@@ -486,7 +484,7 @@ public class MovieDetailActivity extends BaseActivity implements
 
         //updateEmptyView();
 
-        //mAddScheduleButton.setVisibility(View.VISIBLE);
+        mAddScheduleButton.setVisibility(View.VISIBLE);
 
         mHandler.post(new Runnable() {
             @Override

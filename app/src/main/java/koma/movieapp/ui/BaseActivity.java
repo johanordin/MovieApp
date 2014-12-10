@@ -473,7 +473,7 @@ public abstract class BaseActivity extends ActionBarActivity implements
         Intent intent;
         switch (item) {
             case NAVDRAWER_ITEM_HOME:
-                intent = new Intent(this, HomeActivity.class);
+                intent = new Intent(this, PopularMoviesActivity.class);
                 startActivity(intent);
                 finish();
                 break;

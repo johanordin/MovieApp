@@ -17,8 +17,11 @@
     <!-- Menu item that brings up the application's About screen -->
     <string name="description_about">About</string>
 
+    <!-- Menu item that allows user to share the currently displayed session. Sharing can be done
+    by email, social networks, etc. -->
+    <string name="description_share">Share</string>
 
-
+    <string name="minutes">minutes</string>
 
     <!-- Title text for dialog screen about the application -->
     <string name="title_about">About</string>
@@ -87,6 +90,8 @@
     displayed session to the user's schedule. -->
     <string name="add_to_schedule_desc">Button to add session to your schedule</string>
     <string name="title_movie_detail">Movie Information</string>
+    <string name="rating_title">Rating:</string>
+    <string name="runtime_title">Runtime:</string>
 
 
 </resources>

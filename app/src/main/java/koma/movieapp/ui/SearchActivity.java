@@ -61,7 +61,7 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
             public void onClick(View view) {
                 navigateUpToFromChild(SearchActivity.this,
                         IntentCompat.makeMainActivity(new ComponentName(SearchActivity.this,
-                                HomeActivity.class)));
+                                PopularMoviesActivity.class)));
             }
         });
 

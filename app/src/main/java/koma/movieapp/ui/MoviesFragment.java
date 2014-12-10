@@ -121,6 +121,7 @@ public class MoviesFragment extends Fragment implements
     private Cursor mCursor;
 
     private ArrayList<Movie> mMovieList;
+    private String mToolbarTitle;
 
     private boolean mIsSearchCursor;
     private boolean mNoTrackBranding;
@@ -235,6 +236,8 @@ public class MoviesFragment extends Fragment implements
 
         mDefaultMovieColor = getResources().getColor(R.color.default_movie_color);
 
+        mToolbarTitle = "";
+
         final TimeZone tz = PrefUtils.getDisplayTimeZone(getActivity());
         mDateFormat.setTimeZone(tz);
         mTimeFormat.setTimeZone(tz);
@@ -287,6 +290,10 @@ public class MoviesFragment extends Fragment implements
         // save arguments so we can reuse it when reloading from content observer events
         mArguments = arguments;
 
+        mToolbarTitle = arguments.getString("title");
+
+        getActivity().setTitle(mToolbarTitle);
+
         /*LOGD(TAG, "MoviesFragment reloading from arguments: " + arguments);
         mCurrentUri = arguments.getParcelable("_uri");
         if (mCurrentUri == null) {
@@ -295,6 +302,8 @@ public class MoviesFragment extends Fragment implements
             //arguments.putParcelable("_uri", ScheduleContract.Sessions.CONTENT_URI);
             //mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
         }*/
+
+
 
         mNoTrackBranding = mArguments.getBoolean(EXTRA_NO_TRACK_BRANDING);
 
@@ -641,14 +650,16 @@ public class MoviesFragment extends Fragment implements
 
         // render title
 
+        //titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
         titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
-        titleView.setBackgroundColor(getResources().getColor(R.color.material_blue_grey_800));
+        //titleView.setBackgroundColor(getResources().getColor(R.color.material_blue_grey_800));
+        titleView.setBackgroundColor(getResources().getColor(R.color.theme_primary));
 
         titleView.setText(movieTitle == null ? "?" : movieTitle);
 
         // set the rating
         if (ratingView != null) {
-            ratingView.setText(movieRating);
+            ratingView.setText(movieRating + "/10");
         }
 
         //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
