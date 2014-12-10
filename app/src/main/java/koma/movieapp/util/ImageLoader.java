@@ -18,8 +18,16 @@ package koma.movieapp.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.support.v7.graphics.Palette;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
@@ -30,6 +38,9 @@ import com.bumptech.glide.load.model.ModelCache;
 import com.bumptech.glide.load.model.stream.BaseGlideUrlLoader;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.bitmap.RequestListener;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
+
 import koma.movieapp.R;
 
 import java.util.regex.Matcher;
@@ -69,8 +80,9 @@ public class ImageLoader {
     /**
      * Load an image from a url into an ImageView using the default placeholder
      * drawable if available.
-     * @param url The web URL of an image.
-     * @param imageView The target ImageView to load the image into.
+     *
+     * @param url             The web URL of an image.
+     * @param imageView       The target ImageView to load the image into.
      * @param requestListener A listener to monitor the request result.
      */
     public void loadImage(String url, ImageView imageView, RequestListener<String> requestListener) {
@@ -80,28 +92,29 @@ public class ImageLoader {
     /**
      * Load an image from a url into an ImageView using the given placeholder drawable.
      *
-     * @param url The web URL of an image.
-     * @param imageView The target ImageView to load the image into.
-     * @param requestListener A listener to monitor the request result.
+     * @param url                The web URL of an image.
+     * @param imageView          The target ImageView to load the image into.
+     * @param requestListener    A listener to monitor the request result.
      * @param placholderOverride A placeholder to use in place of the default placholder.
      */
     public void loadImage(String url, ImageView imageView, RequestListener<String> requestListener,
-            Drawable placholderOverride) {
+                          Drawable placholderOverride) {
         loadImage(url, imageView, requestListener, placholderOverride, false /*crop*/);
     }
 
     /**
      * Load an image from a url into an ImageView using the default placeholder
      * drawable if available.
-     * @param url The web URL of an image.
-     * @param imageView The target ImageView to load the image into.
-     * @param requestListener A listener to monitor the request result.
+     *
+     * @param url                 The web URL of an image.
+     * @param imageView           The target ImageView to load the image into.
+     * @param requestListener     A listener to monitor the request result.
      * @param placeholderOverride A drawable to use as a placeholder for this specific image.
      *                            If this parameter is present, {@link #mPlaceHolderResId}
      *                            if ignored for this request.
      */
-    public void loadImage(String url, ImageView imageView, RequestListener<String> requestListener,
-                Drawable placeholderOverride, boolean crop) {
+    public void loadImage(String url, final ImageView imageView, RequestListener<String> requestListener,
+                          Drawable placeholderOverride, boolean crop) {
         BitmapRequestBuilder request = beginImageLoad(url, requestListener, crop)
                 .animate(R.anim.image_fade_in);
         if (placeholderOverride != null) {
@@ -109,11 +122,39 @@ public class ImageLoader {
         } else if (mPlaceHolderResId != -1) {
             request.placeholder(mPlaceHolderResId);
         }
-        request.into(imageView);
+        request.into(new BitmapImageViewTarget(imageView) {
+            @Override
+            public void onResourceReady(Bitmap bitmap) {
+                super.onResourceReady(bitmap);
+//                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+//                    @Override
+//                    public void onGenerated(Palette palette) {
+//                        Palette.Swatch swatch = palette.getDarkVibrantSwatch();
+//                        ViewGroup parent = (ViewGroup) imageView.getParent();
+//                        TextView test2 = (TextView) parent.findViewById(R.id.movie_title);
+//                        if(test2 != null) {
+//                            if (swatch != null ) {
+//                                //FrameLayout test = (FrameLayout) imageView.getRootView().findViewById(R.id.movie_target);
+//                                //imageView.setColorFilter(new PorterDuffColorFilter(swatch.getRgb(), PorterDuff.Mode.MULTIPLY));
+//                                test2.setBackgroundColor(swatch.getRgb());
+//                                test2.setTextColor(swatch.getTitleTextColor());
+//                                System.out.println("Setting colors from swatch for: " + test2.getText());
+//                            } else {
+//
+//                            }
+//
+//                        }
+//
+//
+//                        // Here's your generated palette
+//                    }
+//                });
+            }
+        });
     }
 
     public BitmapRequestBuilder beginImageLoad(String url,
-            RequestListener<String> requestListener, boolean crop) {
+                                               RequestListener<String> requestListener, boolean crop) {
         return mGlideModelRequest.load(url)
                 .asBitmap() // don't allow animated GIFs
                 .listener(requestListener)
@@ -123,7 +164,8 @@ public class ImageLoader {
     /**
      * Load an image from a url into the given image view using the default placeholder if
      * available.
-     * @param url The web URL of an image.
+     *
+     * @param url       The web URL of an image.
      * @param imageView The target ImageView to load the image into.
      */
     public void loadImage(String url, ImageView imageView) {
@@ -133,9 +175,10 @@ public class ImageLoader {
     /**
      * Load an image from a url into an ImageView using the default placeholder
      * drawable if available.
-     * @param url The web URL of an image.
+     *
+     * @param url       The web URL of an image.
      * @param imageView The target ImageView to load the image into.
-     * @param crop True to apply a center crop to the image.
+     * @param crop      True to apply a center crop to the image.
      */
     public void loadImage(String url, ImageView imageView, boolean crop) {
         loadImage(url, imageView, null, null, crop);
@@ -163,7 +206,7 @@ public class ImageLoader {
         protected String getUrl(String model, int width, int height) {
             Matcher m = PATTERN.matcher(model);
 
-            System.out.println("IMAGELOADER TEST: " + model);
+            //System.out.println("IMAGELOADER TEST: " + model);
             int bestBucket = 0;
             if (m.find()) {
                 String[] found = m.group(1).split("-");
@@ -175,8 +218,8 @@ public class ImageLoader {
                     }
                 }
                 if (bestBucket > 0) {
-                    model = m.replaceFirst("w"+bestBucket);
-                    LOGD(TAG, "width="+width+", URL successfully replaced by "+model);
+                    model = m.replaceFirst("w" + bestBucket);
+                    LOGD(TAG, "width=" + width + ", URL successfully replaced by " + model);
                 }
             }
             return model;

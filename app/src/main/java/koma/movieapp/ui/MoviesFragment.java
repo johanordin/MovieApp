@@ -25,8 +25,11 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +38,7 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.content.AsyncTaskLoader;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -636,12 +640,18 @@ public class MoviesFragment extends Fragment implements
         }
 
         // render title
+
+        titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
+        titleView.setBackgroundColor(getResources().getColor(R.color.material_blue_grey_800));
+
         titleView.setText(movieTitle == null ? "?" : movieTitle);
 
         // set the rating
         if (ratingView != null) {
             ratingView.setText(movieRating);
         }
+
+        //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
 
         // set the images
         mImageLoader.loadImage(Config.TMDB_IMAGE_BASE_URL + "w780" + movieBackdrop, photoView);
@@ -746,7 +756,7 @@ public class MoviesFragment extends Fragment implements
                     backdrop = movie.backdrop_path;
                     //LOGD(TAG, "PRELOADER getItems: Backdrop =  " + backdrop);
 
-                    System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
+                    //System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
 
                     urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
 

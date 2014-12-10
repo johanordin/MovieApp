@@ -195,8 +195,9 @@
     <!-- Explore item text appearances -->
     <style name="MovieItem.Title" parent="">
         <item name="android:textColor">#fff</item> <!-- a bit brighter than body_text_1_inverse to stand out more -->
-        <item name="android:textSize">@dimen/text_size_xxlarge</item>
+        <item name="android:textSize">@dimen/text_size_xlarge</item>
         <item name="android:maxLines">2</item>
+        <item name="android:padding">10dp</item>
         <item name="android:ellipsize">end</item>
     </style>
 
