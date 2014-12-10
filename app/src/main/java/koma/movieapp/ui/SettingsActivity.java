@@ -17,7 +17,6 @@
 package koma.movieapp.ui;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
@@ -27,8 +26,6 @@ import android.view.View;
 
 import koma.movieapp.R;
 import koma.movieapp.util.PrefUtils;
-
-import koma.movieapp.ui.BaseActivity;
 
 /**
  * Activity for customizing app settings.

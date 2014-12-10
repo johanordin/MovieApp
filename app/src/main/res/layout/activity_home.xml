@@ -38,7 +38,7 @@
 
             <!-- Sessions fragment showing the session grid -->
             <fragment android:name="koma.movieapp.ui.MoviesFragment"
-                android:id="@+id/sessions_fragment"
+                android:id="@+id/movies_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:layout="@layout/fragment_movies" />

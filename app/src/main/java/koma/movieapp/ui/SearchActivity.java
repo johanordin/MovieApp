@@ -23,18 +23,20 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.IntentCompat;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.support.v7.widget.SearchView;
-
 
 import koma.movieapp.R;
-//import koma.movieapp.ui.debug.actions.ShowFeedbackNotificationAction;
 
-import static koma.movieapp.util.LogUtils.*;
+import static koma.movieapp.util.LogUtils.LOGD;
+import static koma.movieapp.util.LogUtils.LOGW;
+import static koma.movieapp.util.LogUtils.makeLogTag;
+
+//import koma.movieapp.ui.debug.actions.ShowFeedbackNotificationAction;
 
 public class SearchActivity extends BaseActivity implements MoviesFragment.Callbacks {
     private static final String TAG = makeLogTag("SearchActivity");

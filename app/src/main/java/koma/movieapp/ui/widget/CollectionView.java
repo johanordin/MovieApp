@@ -28,14 +28,12 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import koma.movieapp.R;
-import koma.movieapp.util.Lists;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import koma.movieapp.ui.widget.CollectionViewCallbacks;
+import koma.movieapp.R;
+import koma.movieapp.util.Lists;
 
 import static koma.movieapp.util.LogUtils.LOGD;
 import static koma.movieapp.util.LogUtils.LOGW;

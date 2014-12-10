@@ -1,16 +1,12 @@
 package koma.movieapp.ui;
 
-import android.accounts.Account;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +19,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,15 +27,10 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import koma.movieapp.BuildConfig;
-import koma.movieapp.Config;
 import koma.movieapp.R;
 import koma.movieapp.ui.widget.MultiSwipeRefreshLayout;
 import koma.movieapp.ui.widget.ScrimInsetsScrollView;
@@ -50,10 +40,7 @@ import koma.movieapp.util.LUtils;
 import koma.movieapp.util.PrefUtils;
 import koma.movieapp.util.UIUtils;
 
-
 import static koma.movieapp.util.LogUtils.LOGD;
-import static koma.movieapp.util.LogUtils.LOGE;
-import static koma.movieapp.util.LogUtils.LOGI;
 import static koma.movieapp.util.LogUtils.LOGW;
 import static koma.movieapp.util.LogUtils.makeLogTag;
 
@@ -62,53 +49,21 @@ public abstract class BaseActivity extends ActionBarActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener,
         MultiSwipeRefreshLayout.CanChildScrollUpCallback {
 
-    private static final String TAG = makeLogTag(BaseActivity.class);
-
-    private DrawerLayout mDrawerLayout;
-
-    // Helper methods for L APIs
-    private LUtils mLUtils;
-
-
-    private ObjectAnimator mStatusBarColorAnimator;
-    private LinearLayout mAccountListContainer;
-    private ViewGroup mDrawerItemsListContainer;
-    private Handler mHandler;
-    private ImageView mExpandAccountBoxIndicator;
-    private boolean mAccountBoxExpanded = false;
-
-
-
-    // When set, these components will be shown/hidden in sync with the action bar
-    // to implement the "quick recall" effect (the Action Bar and the header views disappear
-    // when you scroll down a list, and reappear quickly when you scroll up).
-    private ArrayList<View> mHideableHeaderViews = new ArrayList<View>();
-
-
-    // Durations for certain animations we use:
-    private static final int HEADER_HIDE_ANIM_DURATION = 300;
-    private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
-
     // Items for nav drawer
     protected static final int NAVDRAWER_ITEM_HOME = 0;
     protected static final int NAVDRAWER_ITEM_UPCOMING = 1;
-
     protected static final int NAVDRAWER_ITEM_SETTINGS = 2;
-
-
     protected static final int NAVDRAWER_ITEM_INVALID = -1;
     protected static final int NAVDRAWER_ITEM_SEPARATOR = -2;
     protected static final int NAVDRAWER_ITEM_SEPARATOR_SPECIAL = -3;
 
-
-    // titles for nav drawer items
+    // Titles for nav drawer items
     private static final int[] NAVDRAWER_TITLE_RES_ID = new int[]{
             R.string.navdrawer_item_home,
             R.string.navdrawer_item_upcoming,
             R.string.navdrawer_item_settings
 
     };
-
 
     // icons for navdrawer items
     private static final int[] NAVDRAWER_ICON_RES_ID = new int[]{
@@ -117,15 +72,35 @@ public abstract class BaseActivity extends ActionBarActivity implements
             R.drawable.ic_drawer_settings
     };
 
+    private static final String TAG = makeLogTag(BaseActivity.class);
+
+    // Durations for certain animations we use:
+    private static final int HEADER_HIDE_ANIM_DURATION = 300;
+    private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
 
     // delay to launch nav drawer item, to allow close animation to play
     private static final int NAVDRAWER_LAUNCH_DELAY = 250;
 
     // fade in and fade out durations for the main content when switching between
-// different Activities of the app through the Nav Drawer
+    // different Activities of the app through the Nav Drawer
     private static final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
+    private static final TypeEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
+    private DrawerLayout mDrawerLayout;
 
+    // Helper methods for L APIs
+    private LUtils mLUtils;
+    private ObjectAnimator mStatusBarColorAnimator;
+    private LinearLayout mAccountListContainer;
+    private ViewGroup mDrawerItemsListContainer;
+    private Handler mHandler;
+    private ImageView mExpandAccountBoxIndicator;
+    private boolean mAccountBoxExpanded = false;
+
+    // When set, these components will be shown/hidden in sync with the action bar
+    // to implement the "quick recall" effect (the Action Bar and the header views disappear
+    // when you scroll down a list, and reappear quickly when you scroll up).
+    private ArrayList<View> mHideableHeaderViews = new ArrayList<View>();
 
     // list of navdrawer items that were actually added to the navdrawer, in order
     private ArrayList<Integer> mNavDrawerItems = new ArrayList<Integer>();
@@ -136,10 +111,8 @@ public abstract class BaseActivity extends ActionBarActivity implements
     // SwipeRefreshLayout allows the user to swipe the screen down to trigger a manual refresh
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-
     // Primary toolbar and drawer toggle
     private Toolbar mActionBarToolbar;
-
 
     // variables that control the Action Bar auto hide behavior (aka "quick recall")
     private boolean mActionBarAutoHideEnabled = false;
@@ -148,18 +121,49 @@ public abstract class BaseActivity extends ActionBarActivity implements
     private int mActionBarAutoHideSignal = 0;
     private boolean mActionBarShown = true;
 
-
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
     private Runnable mDeferredOnDrawerClosedRunnable;
     private boolean mManualSyncRequest;
     private int mThemedStatusBarColor;
     private int mNormalStatusBarColor;
     private int mProgressBarTopWhenActionBarShown;
-    private static final TypeEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
-
     private ImageLoader mImageLoader;
 
+    /**
+     * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
+     */
+    public static Bundle intentToFragmentArguments(Intent intent) {
+        Bundle arguments = new Bundle();
+        if (intent == null) {
+            return arguments;
+        }
+        final Uri data = intent.getData();
+        if (data != null) {
+            arguments.putParcelable("_uri", data);
+        }
+        final Bundle extras = intent.getExtras();
+        if (extras != null) {
+            arguments.putAll(intent.getExtras());
+        }
+        return arguments;
+    }
 
+    /**
+     * Converts a fragment arguments bundle into an intent.
+     */
+    public static Intent fragmentArgumentsToIntent(Bundle arguments) {
+        Intent intent = new Intent();
+        if (arguments == null) {
+            return intent;
+        }
+        final Uri data = arguments.getParcelable("_uri");
+        if (data != null) {
+            intent.setData(data);
+        }
+        intent.putExtras(arguments);
+        intent.removeExtra("_uri");
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,7 +192,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
 
     }
 
-
     private void trySetupSwipeRefresh() {
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         if (mSwipeRefreshLayout != null) {
@@ -209,12 +212,10 @@ public abstract class BaseActivity extends ActionBarActivity implements
         }
     }
 
-
     protected void setProgressBarTopWhenActionBarShown(int progressBarTopWhenActionBarShown) {
         mProgressBarTopWhenActionBarShown = progressBarTopWhenActionBarShown;
         updateSwipeRefreshProgressBarTop();
     }
-
 
     private void updateSwipeRefreshProgressBarTop() {
         if (mSwipeRefreshLayout == null) {
@@ -229,7 +230,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
                 top + progressBarStartMargin, top + progressBarEndMargin);
     }
 
-
     /**
      * Returns the navigation drawer item that corresponds to this Activity. Subclasses
      * of BaseActivity override this to indicate what nav drawer item corresponds to them
@@ -239,25 +239,23 @@ public abstract class BaseActivity extends ActionBarActivity implements
         return NAVDRAWER_ITEM_INVALID;
     }
 
-
     /**
      * Sets up the navigation drawer as appropriate. Note that the nav drawer will be
      * different depending on whether the attendee indicated that they are attending the
      * event on-site vs. attending remotely.
      */
     private void setupNavDrawer() {
-// What nav drawer item should be selected?
+    // What nav drawer item should be selected?
         int selfItem = getSelfNavDrawerItem();
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout == null) {
             return;
         }
-        mDrawerLayout.setStatusBarBackgroundColor(
-                getResources().getColor(R.color.theme_primary_dark));
-        ScrimInsetsScrollView navDrawer = (ScrimInsetsScrollView)
-                mDrawerLayout.findViewById(R.id.navdrawer);
+        mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.theme_primary_dark));
+        ScrimInsetsScrollView navDrawer = (ScrimInsetsScrollView) mDrawerLayout.findViewById(R.id.navdrawer);
+        // do not show a nav drawer
         if (selfItem == NAVDRAWER_ITEM_INVALID) {
-// do not show a nav drawer
+
             if (navDrawer != null) {
                 ((ViewGroup) navDrawer.getParent()).removeView(navDrawer);
             }
@@ -346,23 +344,24 @@ public abstract class BaseActivity extends ActionBarActivity implements
         }
     }
 
+    protected void onNavDrawerSlide(float offset) {
+    }
 
-    protected void onNavDrawerSlide(float offset) {}
     protected boolean isNavDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
     }
+
     protected void closeNavDrawer() {
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(Gravity.START);
         }
     }
 
-
-
-    /** Populates the navigation drawer with the appropriate items. */
+    /**
+     * Populates the navigation drawer with the appropriate items.
+     */
     private void populateNavDrawer() {
         mNavDrawerItems.clear();
-
 
         // Home is always shown
         mNavDrawerItems.add(NAVDRAWER_ITEM_HOME);
@@ -375,11 +374,9 @@ public abstract class BaseActivity extends ActionBarActivity implements
         // Settings
         mNavDrawerItems.add(NAVDRAWER_ITEM_SETTINGS);
 
-
         createNavDrawerItems();
 
     }
-
 
     @Override
     public void onBackPressed() {
@@ -389,8 +386,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
             super.onBackPressed();
         }
     }
-
-
 
     private void createNavDrawerItems() {
         mDrawerItemsListContainer = (ViewGroup) findViewById(R.id.navdrawer_items_list);
@@ -407,7 +402,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         }
     }
 
-
     /**
      * Sets up the given navdrawer item's appearance to the selected state. Note: this could
      * also be accomplished (perhaps more cleanly) with state-based layouts.
@@ -423,8 +417,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         }
     }
 
-
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 //        if (key.equals(PrefUtils.PREF_ATTENDEE_AT_VENUE)) {
@@ -435,6 +427,17 @@ public abstract class BaseActivity extends ActionBarActivity implements
     }
 
 
+//    protected void requestDataRefresh() {
+//        //Account activeAccount = AccountUtils.getActiveAccount(this);
+//        //ContentResolver contentResolver = getContentResolver();
+///*        if (contentResolver.isSyncActive(activeAccount, ScheduleContract.CONTENT_AUTHORITY)) {
+//            LOGD(TAG, "Ignoring manual sync request because a sync is already in progress.");
+//            return;
+//        }*/
+//        mManualSyncRequest = true;
+//        LOGD(TAG, "Requesting manual data refresh.");
+//        //SyncHelper.requestManualSync(activeAccount);
+//    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -466,21 +469,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-
-
-//    protected void requestDataRefresh() {
-//        //Account activeAccount = AccountUtils.getActiveAccount(this);
-//        //ContentResolver contentResolver = getContentResolver();
-///*        if (contentResolver.isSyncActive(activeAccount, ScheduleContract.CONTENT_AUTHORITY)) {
-//            LOGD(TAG, "Ignoring manual sync request because a sync is already in progress.");
-//            return;
-//        }*/
-//        mManualSyncRequest = true;
-//        LOGD(TAG, "Requesting manual data refresh.");
-//        //SyncHelper.requestManualSync(activeAccount);
-//    }
-
-
     private void goToNavDrawerItem(int item) {
         Intent intent;
         switch (item) {
@@ -500,7 +488,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
                 break;
         }
     }
-
 
     private void onNavDrawerItemClicked(final int itemId) {
         if (itemId == getSelfNavDrawerItem()) {
@@ -528,7 +515,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         mDrawerLayout.closeDrawer(Gravity.START);
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -541,7 +527,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         //mSyncObserverHandle = ContentResolver.addStatusChangeListener(mask, mSyncStatusObserver);
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -551,52 +536,10 @@ public abstract class BaseActivity extends ActionBarActivity implements
 //        }
     }
 
-
-    /**
-     * Converts an intent into a {@link Bundle} suitable for use as fragment arguments.
-     */
-    public static Bundle intentToFragmentArguments(Intent intent) {
-        Bundle arguments = new Bundle();
-        if (intent == null) {
-            return arguments;
-        }
-        final Uri data = intent.getData();
-        if (data != null) {
-            arguments.putParcelable("_uri", data);
-        }
-        final Bundle extras = intent.getExtras();
-        if (extras != null) {
-            arguments.putAll(intent.getExtras());
-        }
-        return arguments;
-    }
-
-
-
-    /**
-     * Converts a fragment arguments bundle into an intent.
-     */
-    public static Intent fragmentArgumentsToIntent(Bundle arguments) {
-        Intent intent = new Intent();
-        if (arguments == null) {
-            return intent;
-        }
-        final Uri data = arguments.getParcelable("_uri");
-        if (data != null) {
-            intent.setData(data);
-        }
-        intent.putExtras(arguments);
-        intent.removeExtra("_uri");
-        return intent;
-    }
-
-
-
     @Override
     public void onStart() {
         LOGD(TAG, "onStart");
         super.onStart();
-
 
 //        //Perform one-time bootstrap setup, if needed
 //        if (!PrefUtils.isDataBootstrapDone(this) && mDataBootstrapThread == null) {
@@ -606,8 +549,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         //startLoginProcess();
     }
 
-
-
     @Override
     public void onStop() {
         LOGD(TAG, "onStop");
@@ -616,8 +557,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
 //            mLoginAndAuthHelper.stop();
 //        }
     }
-
-
 
     /**
      * Initializes the Action Bar auto-hide (aka Quick Recall) effect.
@@ -629,7 +568,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         mActionBarAutoHideSensivity = getResources().getDimensionPixelSize(
                 R.dimen.action_bar_auto_hide_sensivity);
     }
-
 
     /**
      * Indicates that the main content has scrolled (for the purposes of showing/hiding
@@ -646,10 +584,10 @@ public abstract class BaseActivity extends ActionBarActivity implements
             deltaY = -mActionBarAutoHideSensivity;
         }
         if (Math.signum(deltaY) * Math.signum(mActionBarAutoHideSignal) < 0) {
-        // deltaY is a motion opposite to the accumulated signal, so reset signal
+            // deltaY is a motion opposite to the accumulated signal, so reset signal
             mActionBarAutoHideSignal = deltaY;
         } else {
-           // add to accumulated signal
+            // add to accumulated signal
             mActionBarAutoHideSignal += deltaY;
         }
         boolean shouldShow = currentY < mActionBarAutoHideMinY ||
@@ -669,7 +607,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
     }
 
 
-
     protected void autoShowOrHideActionBar(boolean show) {
         if (show == mActionBarShown) {
             return;
@@ -679,15 +616,16 @@ public abstract class BaseActivity extends ActionBarActivity implements
     }
 
 
-
     protected void enableActionBarAutoHide(final ListView listView) {
         initActionBarAutoHide();
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             final static int ITEMS_THRESHOLD = 3;
             int lastFvi = 0;
+
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
             }
+
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 onMainContentScrolled(firstVisibleItem <= ITEMS_THRESHOLD ? 0 : Integer.MAX_VALUE,
@@ -748,7 +686,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
     }
 
 
-
     private boolean isSpecialItem(int itemId) {
         return itemId == NAVDRAWER_ITEM_SETTINGS;
     }
@@ -760,12 +697,12 @@ public abstract class BaseActivity extends ActionBarActivity implements
 
     private void formatNavDrawerItem(View view, int itemId, boolean selected) {
         if (isSeparator(itemId)) {
-// not applicable
+        // not applicable
             return;
         }
         ImageView iconView = (ImageView) view.findViewById(R.id.icon);
         TextView titleView = (TextView) view.findViewById(R.id.title);
-// configure its appearance according to whether or not it's selected
+        // configure its appearance according to whether or not it's selected
         titleView.setTextColor(selected ?
                 getResources().getColor(R.color.navdrawer_text_color_selected) :
                 getResources().getColor(R.color.navdrawer_text_color));
@@ -797,21 +734,25 @@ public abstract class BaseActivity extends ActionBarActivity implements
             mSwipeRefreshLayout.setRefreshing(refreshing);
         }
     }
+
     protected void enableDisableSwipeRefresh(boolean enable) {
         if (mSwipeRefreshLayout != null) {
             mSwipeRefreshLayout.setEnabled(enable);
         }
     }
+
     protected void registerHideableHeaderView(View hideableHeaderView) {
         if (!mHideableHeaderViews.contains(hideableHeaderView)) {
             mHideableHeaderViews.add(hideableHeaderView);
         }
     }
+
     protected void deregisterHideableHeaderView(View hideableHeaderView) {
         if (mHideableHeaderViews.contains(hideableHeaderView)) {
             mHideableHeaderViews.remove(hideableHeaderView);
         }
     }
+
     public LUtils getLUtils() {
         return mLUtils;
     }
@@ -867,12 +808,11 @@ public abstract class BaseActivity extends ActionBarActivity implements
             }
         }
     }
+
     @Override
     public boolean canSwipeRefreshChildScrollUp() {
         return false;
     }
-
-
 
 
 }
