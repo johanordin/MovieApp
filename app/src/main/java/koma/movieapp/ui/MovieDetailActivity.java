@@ -142,7 +142,7 @@ public class MovieDetailActivity extends BaseActivity implements
         }
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_session_detail);
+        setContentView(R.layout.activity_movie_detail);
 
         final Toolbar toolbar = getActionBarToolbar();
         toolbar.setNavigationIcon(shouldBeFloatingWindow
@@ -203,7 +203,7 @@ public class MovieDetailActivity extends BaseActivity implements
         mTitle = (TextView) findViewById(R.id.movie_title);
         mMovieRating = (TextView) findViewById(R.id.movie_rating);
         mMovieRuntime = (TextView) findViewById(R.id.movie_runtime);
-        mPhotoViewContainer = findViewById(R.id.session_photo_container);
+        mPhotoViewContainer = findViewById(R.id.movie_photo_container);
         mPhotoView = (ImageView) findViewById(R.id.movie_backdrop);
 
         mMovieOverview = (TextView) findViewById(R.id.movie_overview);
