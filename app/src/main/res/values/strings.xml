@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MovieApp</string>
+    <string name="app_name">Moviespotter</string>
 
     <string name="navdrawer_item_home">Home</string>
     <string name="navdrawer_item_upcoming">Upcoming</string>

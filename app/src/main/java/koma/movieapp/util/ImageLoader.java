@@ -126,12 +126,17 @@ public class ImageLoader {
             @Override
             public void onResourceReady(Bitmap bitmap) {
                 super.onResourceReady(bitmap);
-//                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
-//                    @Override
-//                    public void onGenerated(Palette palette) {
-//                        Palette.Swatch swatch = palette.getDarkVibrantSwatch();
-//                        ViewGroup parent = (ViewGroup) imageView.getParent();
-//                        TextView test2 = (TextView) parent.findViewById(R.id.movie_title);
+                Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(Palette palette) {
+                        Palette.Swatch swatch = palette.getDarkVibrantSwatch();
+                        ViewGroup parent = (ViewGroup) imageView.getParent();
+                        TextView test2 = (TextView) parent.findViewById(R.id.movie_title);
+
+                        if(swatch != null) {
+
+                        }
+
 //                        if(test2 != null) {
 //                            if (swatch != null ) {
 //                                //FrameLayout test = (FrameLayout) imageView.getRootView().findViewById(R.id.movie_target);
@@ -144,11 +149,11 @@ public class ImageLoader {
 //                            }
 //
 //                        }
-//
-//
-//                        // Here's your generated palette
-//                    }
-//                });
+
+
+                        // Here's your generated palette
+                    }
+                });
             }
         });
     }
