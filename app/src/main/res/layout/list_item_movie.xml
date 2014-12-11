@@ -23,7 +23,8 @@
     <!-- Session image -->
     <ImageView android:id="@+id/session_photo_colored"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        />
 
     <!-- Session category/group if non-default (e.g. "Workshop") -->
     <TextView android:id="@+id/movie_rating"
@@ -37,7 +38,7 @@
         android:id="@+id/info_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center"
         android:padding="16dp"
         android:orientation="vertical">
 
@@ -46,6 +47,9 @@
             style="@style/MovieItem.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/body_text_1_inverse"
+            android:background="@color/data_item_text_background_with_alpha"
+            android:textAlignment="center"
             android:elevation="8dp"
             android:text="@string/placeholder_movie_title" />
 

@@ -65,7 +65,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_popular);
         Log.d("HomeActivity", "HomeActivity.onCreate() — says ");
 
         Toolbar toolbar = getActionBarToolbar();

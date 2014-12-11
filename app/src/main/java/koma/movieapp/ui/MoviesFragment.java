@@ -651,15 +651,19 @@ public class MoviesFragment extends Fragment implements
         // render title
 
         //titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
-        titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
+        //titleView.setTextColor(getResources().getColor(R.color.body_text_1_inverse));
         //titleView.setBackgroundColor(getResources().getColor(R.color.material_blue_grey_800));
-        titleView.setBackgroundColor(getResources().getColor(R.color.theme_primary));
+        //titleView.setBackgroundColor(getResources().getColor(R.color.theme_primary));
 
         titleView.setText(movieTitle == null ? "?" : movieTitle);
+        titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         // set the rating
-        if (ratingView != null) {
+        if (movieRating != null) {
             ratingView.setText(movieRating + "/10");
+            ratingView.setVisibility(View.VISIBLE);
+        } else {
+            ratingView.setVisibility(View.GONE);
         }
 
         //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
