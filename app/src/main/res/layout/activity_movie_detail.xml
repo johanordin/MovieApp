@@ -30,7 +30,7 @@
 
         <!-- Background photo -->
         <FrameLayout
-            android:id="@+id/session_photo_container"
+            android:id="@+id/movie_photo_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
