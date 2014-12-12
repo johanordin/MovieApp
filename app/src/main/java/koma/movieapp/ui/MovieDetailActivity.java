@@ -381,7 +381,7 @@ public class MovieDetailActivity extends BaseActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.session_detail, menu);
+        //getMenuInflater().inflate(R.menu.session_detail, menu);
 //        mShareMenuItem = menu.findItem(R.id.menu_share);
 
         return true;

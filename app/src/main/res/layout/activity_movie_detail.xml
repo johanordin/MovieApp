@@ -58,14 +58,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                android:layout_marginLeft="@dimen/keyline_1"
                 android:visibility="gone" />
 
             <!-- Overview header -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                android:layout_marginLeft="@dimen/keyline_1"
                 android:ellipsize="end"
                 android:text="@string/overview_title"
                 android:textAlignment="viewStart"
@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail" />
+                android:layout_marginLeft="@dimen/keyline_1" />
 
 
             <!-- Genres container -->
@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                android:layout_marginLeft="@dimen/keyline_1"
                 android:fadingEdgeLength="16dp"
                 android:requiresFadingEdge="horizontal"
                 android:scrollbars="none">
@@ -122,7 +122,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="0dp"
-                android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                android:layout_marginLeft="@dimen/keyline_1"
                 android:layout_marginRight="@dimen/keyline_1"
                 android:ellipsize="end"
                 android:fontFamily="@string/font_fontFamily_medium"
@@ -145,7 +145,7 @@
                     android:id="@+id/movie_rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
+                    android:layout_marginLeft="@dimen/keyline_1"
                     android:layout_marginRight="@dimen/keyline_1"
                     android:ellipsize="end"
                     android:maxLines="2"
@@ -243,7 +243,11 @@
 
 
         <!-- FAB -->
-        <include layout="@layout/include_add_schedule_fab" />
+        <include layout="@layout/include_add_schedule_fab"
+            android:layout_gravity="right"
+            android:layout_height="@dimen/add_to_schedule_button_height"
+            android:layout_width="@dimen/add_to_schedule_button_height"
+            android:layout_marginRight="@dimen/keyline_1"            />
 
 
     </FrameLayout>

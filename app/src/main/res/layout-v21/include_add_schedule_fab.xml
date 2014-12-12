@@ -20,6 +20,7 @@
     android:layout_width="@dimen/add_to_schedule_button_height_no_padding"
     android:layout_height="@dimen/add_to_schedule_button_height_no_padding"
     android:layout_marginLeft="@dimen/keyline_1"
+    android:layout_marginRight="@dimen/keyline_1"
     android:visibility="invisible"
     android:clickable="true"
     android:focusable="true"
@@ -34,7 +35,7 @@
         android:scaleType="center"
         android:src="@drawable/add_schedule_button_icon_unchecked"
         android:contentDescription="@null"
-        android:layout_gravity="center" />
+        android:layout_gravity="right" />
 
 </koma.movieapp.ui.widget.AddToScheduleFABFrameLayout>
 
