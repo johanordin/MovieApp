@@ -78,6 +78,8 @@
     <string name="navdrawer_item_settings">Settings</string>
     <string name="overview_title">Overview</string>
 
+    <string name="director_title">Director</string>
+
 
     <!-- Button text indicating the session is in the user's schedule -->
     <string name="remove_from_schedule">In schedule</string>

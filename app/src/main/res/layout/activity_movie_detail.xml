@@ -82,6 +82,7 @@
                 android:layout_marginLeft="@dimen/keyline_1" />
 
 
+
             <!-- Genres container -->
             <HorizontalScrollView
                 android:id="@+id/movie_genres_container"
@@ -170,73 +171,6 @@
 
 
             </LinearLayout>
-
-<!--
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                &lt;!&ndash; Movie rating header &ndash;&gt;
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                    android:ellipsize="end"
-                    android:text="@string/rating_title"
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/body_text_1_inverse"
-                    android:textSize="16sp" />
-
-
-                &lt;!&ndash; Movie rating &ndash;&gt;
-                <TextView
-                    android:id="@+id/movie_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                    android:layout_marginRight="@dimen/keyline_1"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="@string/placeholder_session_subtitle"
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/body_text_2_inverse"
-                    android:textSize="@dimen/text_size_medium" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                &lt;!&ndash; Movie rating header &ndash;&gt;
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                    android:ellipsize="end"
-                    android:text="@string/runtime_title"
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/body_text_1_inverse"
-                    android:textSize="16sp" />
-
-                &lt;!&ndash; Movie runtime &ndash;&gt;
-                <TextView
-                    android:id="@+id/movie_runtime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/keyline_2_session_detail"
-                    android:layout_marginRight="@dimen/keyline_1"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/body_text_2_inverse"
-                    android:textSize="@dimen/text_size_medium" />
-
-
-            </LinearLayout>-->
 
 
         </LinearLayout>

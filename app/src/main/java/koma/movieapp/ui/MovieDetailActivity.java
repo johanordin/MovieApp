@@ -43,8 +43,12 @@ import android.widget.TextView;
 import com.bumptech.glide.request.bitmap.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.uwetrottmann.tmdb.Tmdb;
+import com.uwetrottmann.tmdb.entities.AppendToResponse;
+import com.uwetrottmann.tmdb.entities.Credits;
 import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
+import com.uwetrottmann.tmdb.entities.Person;
+import com.uwetrottmann.tmdb.enumerations.AppendToResponseItem;
 import com.uwetrottmann.tmdb.services.MoviesService;
 
 import java.util.ArrayList;
@@ -78,6 +82,8 @@ public class MovieDetailActivity extends BaseActivity implements
     private static final int TIME_HINT_UPDATE_INTERVAL = 10000; // 10 sec
 
     private int mMovieId;
+
+    private Bundle mArguments;
 
     private String mTitleString;
     private String mHashTag;
@@ -164,13 +170,14 @@ public class MovieDetailActivity extends BaseActivity implements
             Uri sessionUri = getIntent().getData();
         }
 
-        Bundle extras = getIntent().getExtras();
+        mArguments = getIntent().getExtras();
 
-        if (extras == null) {
-            return;
-        }
-
-        mMovieId = Integer.parseInt(extras.getString("movieId"));
+//
+//        if (extras == null) {
+//            return;
+//        }
+//
+//        mMovieId = Integer.parseInt(extras.getString("movieId"));
 
 
         mFABElevation = getResources().getDimensionPixelSize(R.dimen.fab_elevation);
@@ -216,7 +223,7 @@ public class MovieDetailActivity extends BaseActivity implements
         ViewCompat.setTransitionName(mPhotoView, TRANSITION_NAME_PHOTO);
 
         LoaderManager manager = getLoaderManager();
-        manager.initLoader(mMovieId, null, this);
+        manager.initLoader(0, mArguments, this);
     }
 
     @Override
@@ -329,7 +336,7 @@ public class MovieDetailActivity extends BaseActivity implements
         }
 
         // Refresh whether or not feedback has been submitted
-        getLoaderManager().restartLoader(mMovieId, null, this);
+        getLoaderManager().restartLoader(0, mArguments, this);
     }
 
     @Override
@@ -399,7 +406,10 @@ public class MovieDetailActivity extends BaseActivity implements
 
     @Override
     public Loader<Movie> onCreateLoader(int id, Bundle data) {
-        return new MovieLoader(this);
+
+        int movieId = Integer.parseInt(data.getString("movieId"));
+
+        return new MovieLoader(this, movieId);
     }
 
     @Override
@@ -417,30 +427,31 @@ public class MovieDetailActivity extends BaseActivity implements
 
         final String movieOverview = movie.overview;
 
-        // Movie title
+        /* Title */
         mTitle.setText(mTitleString);
 
-        // Movie rating
+        /* Rating */
         if (movieRating.isEmpty()) {
             mMovieRating.setVisibility(View.GONE);
         } else {
             mMovieRating.setText(movieRating + "/10");
         }
 
-        // Movie runtime
+        /* Runtime */
         if (movieRuntime.isEmpty()) {
             mMovieRuntime.setVisibility(View.GONE);
         } else {
             mMovieRuntime.setText(movieRuntime + " " + getResources().getString(R.string.minutes));
         }
 
-
+        /* Overview */
         if (movieOverview.isEmpty()) {
             mMovieOverview.setVisibility(View.GONE);
         } else {
             mMovieOverview.setText(movieOverview);
         }
 
+        /* Backdrop */
         final String backdropUrl = Config.TMDB_IMAGE_BASE_URL + Config.TMDB_IMAGE_SIZE + movie.backdrop_path;
 
         if (!TextUtils.isEmpty(backdropUrl)) {
@@ -465,6 +476,43 @@ public class MovieDetailActivity extends BaseActivity implements
         }
 
 
+        /* Crew */
+
+//        Credits creditsList = movie.credits;
+//
+//        List<Credits.CrewMember> crewList = creditsList.crew;
+//        List<Credits.CastMember> castList = creditsList.cast;
+//
+
+        /* Director */
+
+//        if( !crewList.isEmpty()) {
+//
+//            mMovieDirectors.setVisibility(View.VISIBLE);
+//
+//            LayoutInflater inflater = LayoutInflater.from(this);
+//
+//            for(Credits.CrewMember crewMember : crewList) {
+//
+//                // Director
+//                if(crewMember.job.equals("Director")) {
+//
+//                    TextView directorView = (TextView) inflater.inflate(
+//                            R.layout.include_movie_director_chip, mMovieDirectors, false);
+//                    directorView.setText(crewMember.name);
+//                    mMovieDirectors.addView(directorView);
+//                }
+//
+//                // Add producer and other stuff
+//
+//            }
+//
+//        }
+
+
+
+
+        /* Genres */
         List<Genre> genresList = movie.genres;
 
         if (!genresList.isEmpty()) {
@@ -516,10 +564,12 @@ public class MovieDetailActivity extends BaseActivity implements
 
         Movie mMovie;
         Tmdb tmdb;
+        int mMovieId;
 
-        public MovieLoader(Context context) {
+        public MovieLoader(Context context, int movieId) {
             super(context);
 
+            mMovieId = movieId;
             tmdb = new Tmdb();
             tmdb.setApiKey(Config.TMDB_API_KEY);
         }
@@ -537,7 +587,10 @@ public class MovieDetailActivity extends BaseActivity implements
 
             try {
                 moviesService = tmdb.moviesService();
-                movie = moviesService.summary(this.getId());
+                movie = moviesService.summary(mMovieId,
+                        null,
+                        new AppendToResponse(
+                                AppendToResponseItem.CREDITS));
 
             } catch (Exception e) {
                 LOGE(TAG, "Network error");

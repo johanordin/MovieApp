@@ -848,7 +848,9 @@ public class MoviesFragment extends Fragment implements
 
                     List<Movie> tempList = resultsPage.results;
                     for(int i = 0; i < tempList.size(); i++) {
-                        movieList.add(tempList.get(i));
+                        if( !(tempList.get(i).adult)) {
+                            movieList.add(tempList.get(i));
+                        }
                     }
 
 
