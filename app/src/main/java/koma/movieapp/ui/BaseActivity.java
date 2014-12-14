@@ -50,24 +50,27 @@ public abstract class BaseActivity extends ActionBarActivity implements
         MultiSwipeRefreshLayout.CanChildScrollUpCallback {
 
     // Items for nav drawer
-    protected static final int NAVDRAWER_ITEM_HOME = 0;
+    protected static final int NAVDRAWER_ITEM_POPULAR = 0;
     protected static final int NAVDRAWER_ITEM_UPCOMING = 1;
-    protected static final int NAVDRAWER_ITEM_SETTINGS = 2;
+    protected static final int NAVDRAWER_ITEM_NOW_PLAYING = 2;
+    protected static final int NAVDRAWER_ITEM_SETTINGS = 3;
     protected static final int NAVDRAWER_ITEM_INVALID = -1;
     protected static final int NAVDRAWER_ITEM_SEPARATOR = -2;
     protected static final int NAVDRAWER_ITEM_SEPARATOR_SPECIAL = -3;
 
     // Titles for nav drawer items
     private static final int[] NAVDRAWER_TITLE_RES_ID = new int[]{
-            R.string.navdrawer_item_home,
+            R.string.navdrawer_item_popular,
             R.string.navdrawer_item_upcoming,
+            R.string.navdrawer_item_now_playing,
             R.string.navdrawer_item_settings
 
     };
 
     // icons for navdrawer items
     private static final int[] NAVDRAWER_ICON_RES_ID = new int[]{
-            R.drawable.ic_home_black_36dp,
+            R.drawable.ic_drawer_video_library,
+            R.drawable.ic_drawer_video_library,
             R.drawable.ic_drawer_video_library,
             R.drawable.ic_drawer_settings
     };
@@ -174,7 +177,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         mImageLoader = new ImageLoader(this);
         mHandler = new Handler();
 
-
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
 
@@ -184,7 +186,6 @@ public abstract class BaseActivity extends ActionBarActivity implements
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
-
 
         mLUtils = LUtils.getInstance(this);
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
@@ -363,12 +364,16 @@ public abstract class BaseActivity extends ActionBarActivity implements
     private void populateNavDrawer() {
         mNavDrawerItems.clear();
 
-        // Home is always shown
-        mNavDrawerItems.add(NAVDRAWER_ITEM_HOME);
+        // Popular
+        mNavDrawerItems.add(NAVDRAWER_ITEM_POPULAR);
 
         // Upcoming
         mNavDrawerItems.add(NAVDRAWER_ITEM_UPCOMING);
 
+        // Now playing
+        mNavDrawerItems.add(NAVDRAWER_ITEM_NOW_PLAYING);
+
+        // Separator
         mNavDrawerItems.add(NAVDRAWER_ITEM_SEPARATOR);
 
         // Settings
@@ -472,16 +477,21 @@ public abstract class BaseActivity extends ActionBarActivity implements
     private void goToNavDrawerItem(int item) {
         Intent intent;
         switch (item) {
-            case NAVDRAWER_ITEM_HOME:
+            case NAVDRAWER_ITEM_POPULAR:
                 intent = new Intent(this, PopularMoviesActivity.class);
                 startActivity(intent);
                 finish();
                 break;
-//            case NAVDRAWER_ITEM_UPCOMING:
-//                intent = new Intent(this, UpcomingActivity.class);
-//                startActivity(intent);
-//                finish();
-//                break;
+            case NAVDRAWER_ITEM_NOW_PLAYING:
+                intent = new Intent(this, NowPlayingMoviesActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+            case NAVDRAWER_ITEM_UPCOMING:
+                intent = new Intent(this, UpcomingMoviesActivity.class);
+                startActivity(intent);
+                finish();
+                break;
             case NAVDRAWER_ITEM_SETTINGS:
                 intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);

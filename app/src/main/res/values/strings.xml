@@ -3,8 +3,10 @@
 
     <string name="app_name">Moviespotter</string>
 
-    <string name="navdrawer_item_home">Home</string>
+    <string name="navdrawer_item_popular">Popular</string>
     <string name="navdrawer_item_upcoming">Upcoming</string>
+
+    <string name="navdrawer_item_now_playing">Now Playing</string>
 
     <!-- Menu item that allows the user to start a search for a session by name. After clicking,
     they type in their search query. -->
@@ -92,6 +94,8 @@
     <string name="title_movie_detail">Movie Information</string>
     <string name="rating_title">Rating:</string>
     <string name="runtime_title">Runtime:</string>
+    <string name="search_label">Movies</string>
+    <string name="search_hint">Search movies</string>
 
 
 </resources>

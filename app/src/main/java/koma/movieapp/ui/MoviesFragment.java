@@ -117,6 +117,7 @@ public class MoviesFragment extends Fragment implements
 
     // the cursor whose data we are currently displaying
     private int mSessionQueryToken;
+    private String mCurrentSearchString;
     //private Uri mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
     private Cursor mCursor;
 
@@ -167,6 +168,7 @@ public class MoviesFragment extends Fragment implements
     };
 
     private Preloader mPreloader;
+
 
 
     public boolean canCollectionViewScrollUp() {
@@ -303,7 +305,9 @@ public class MoviesFragment extends Fragment implements
             //mCurrentUri = ScheduleContract.Sessions.CONTENT_URI;
         }*/
 
+        mSessionQueryToken = mArguments.getInt("queryType");
 
+        mCurrentSearchString = arguments.getString("searchString");
 
         mNoTrackBranding = mArguments.getBoolean(EXTRA_NO_TRACK_BRANDING);
 
@@ -363,9 +367,9 @@ public class MoviesFragment extends Fragment implements
     public Loader<ArrayList<Movie>> onCreateLoader(int id, Bundle data) {
         LOGD(TAG, "onCreateLoader, id=" + id + ", data=" + data);
         final Intent intent = BaseActivity.fragmentArgumentsToIntent(data);
-        Uri sessionsUri = intent.getData();
+        String searchString = intent.getStringExtra("searchString");
 
-        return new MovieListLoader(getActivity());
+        return new MovieListLoader(getActivity(), mCurrentSearchString);
     }
 
     @Override
@@ -377,17 +381,18 @@ public class MoviesFragment extends Fragment implements
 
         int token = loader.getId();
 
-        LOGD(TAG, "Loader finished: " + (token == NOW_PLAYING_TOKEN ? "now playing" :
-                token == UPCOMING_TOKEN ? "upcoming" : token == POPULAR_TOKEN ? "popular" : "unknown"));
+        LOGD(TAG, "Loader finished: "
+                + (token == Config.NOW_PLAYING_TOKEN ? "now playing"
+                : token == Config.UPCOMING_TOKEN ? "upcoming"
+                : token == Config.POPULAR_TOKEN ? "popular"
+                : token == Config.SEARCH_TOKEN ? "search"
+                : "unknown"));
 
-        if (token == POPULAR_TOKEN || token == NOW_PLAYING_TOKEN || token == UPCOMING_TOKEN) {
+        mMovieList = data;
 
-            mMovieList = data;
+        LOGD(TAG, "Will now update collection view.");
+        updateCollectionView();
 
-            LOGD(TAG, "Will now update collection view.");
-            updateCollectionView();
-
-        }
 
     }
 
@@ -618,7 +623,7 @@ public class MoviesFragment extends Fragment implements
 
         ImageView photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
 
-        if (photoView != null) {
+        if (photoView != null && movieBackdrop != null) {
             if (!mPreloader.isDimensSet()) {
                 final ImageView finalPhotoView = photoView;
                 photoView.post(new Runnable() {
@@ -659,7 +664,7 @@ public class MoviesFragment extends Fragment implements
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         // set the rating
-        if (movieRating != null) {
+        if (!movieRating.equals("0.0")) {
             ratingView.setText(movieRating + "/10");
             ratingView.setVisibility(View.VISIBLE);
         } else {
@@ -669,7 +674,9 @@ public class MoviesFragment extends Fragment implements
         //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
 
         // set the images
-        mImageLoader.loadImage(Config.TMDB_IMAGE_BASE_URL + "w780" + movieBackdrop, photoView);
+        if(movieBackdrop != null) {
+            mImageLoader.loadImage(Config.TMDB_IMAGE_BASE_URL + "w780" + movieBackdrop, photoView);
+        }
 
         final View finalPhotoView = photoView;
         movieTargetView.setOnClickListener(new View.OnClickListener() {
@@ -791,13 +798,13 @@ public class MoviesFragment extends Fragment implements
     private static class MovieListLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
         ArrayList<Movie> mMovies;
-        int apiID;
         Tmdb tmdb;
+        String mSearchString;
 
-        public MovieListLoader(Context context) {
+        public MovieListLoader(Context context, String searchString) {
             super(context);
-            //this.apiID = apiID;
 
+            mSearchString = searchString;
             tmdb = new Tmdb();
             tmdb.setApiKey(Config.TMDB_API_KEY);
         }
@@ -817,15 +824,21 @@ public class MoviesFragment extends Fragment implements
             try {
                 moviesService = tmdb.moviesService();
                 switch (this.getId()) {
-                    case POPULAR_TOKEN:
+                    case Config.POPULAR_TOKEN:
                         resultsPage = moviesService.popular();
                         break;
-                    case NOW_PLAYING_TOKEN:
+                    case Config.NOW_PLAYING_TOKEN:
                         resultsPage = moviesService.nowPlaying();
                         break;
-                    case UPCOMING_TOKEN:
+                    case Config.UPCOMING_TOKEN:
                         resultsPage = moviesService.upcoming();
                         break;
+                    case Config.SEARCH_TOKEN:
+                        if(mSearchString != null) {
+                            resultsPage = tmdb.searchService().movie(mSearchString);
+                        }
+                        break;
+
                     default:
                         break;
 
@@ -951,7 +964,5 @@ public class MoviesFragment extends Fragment implements
 
 
     //private static final int TAG_METADATA_TOKEN = 0x4;
-    private static final int POPULAR_TOKEN = 0x0;
-    private static final int NOW_PLAYING_TOKEN = 0x1;
-    private static final int UPCOMING_TOKEN = 0x2;
+
 }

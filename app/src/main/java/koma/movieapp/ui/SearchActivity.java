@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import koma.movieapp.Config;
 import koma.movieapp.R;
 
 import static koma.movieapp.util.LogUtils.LOGD;
@@ -72,14 +73,15 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
         query = query == null ? "" : query;
         mQuery = query;
 
-        // TODO Search
-/*        if (mMoviesFragment == null) {
+        if (mMoviesFragment == null) {
             mMoviesFragment = new MoviesFragment();
-            Bundle args = intentToFragmentArguments(
-                    new Intent(Intent.ACTION_VIEW, ScheduleContract.Sessions.buildSearchUri(query)));
+            //Bundle args = intentToFragmentArguments(getIntent());
+            Bundle args = new Bundle();
+            args.putString("title", "Search");
+            args.putString("searchString", query);
             mMoviesFragment.setArguments(args);
             fm.beginTransaction().add(R.id.fragment_container, mMoviesFragment).commit();
-        }*/
+        }
 
         if (mSearchView != null) {
             mSearchView.setQuery(query, false);
@@ -88,17 +90,12 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
         overridePendingTransition(0, 0);
     }
 
-// TODO
-@Override
-    public void onSessionSelected(String sessionId, View clickedView) {
-/*
-        getLUtils().startActivityWithTransition(
-                new Intent(Intent.ACTION_VIEW,
-                        ScheduleContract.Sessions.buildSessionUri(sessionId)),
-                clickedView,
-                MovieDetailActivity.TRANSITION_NAME_PHOTO);
-*/
+    @Override
+    public void onSessionSelected(String movieId, View clickedView) {
 
+        Intent intent = new Intent(this, MovieDetailActivity.class);
+        intent.putExtra("movieId", movieId);
+        getLUtils().startActivityWithTransition(intent, clickedView, MovieDetailActivity.TRANSITION_NAME_PHOTO);
 
 
     }
@@ -115,9 +112,10 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
         LOGD(TAG, "SearchActivity.onNewIntent: " + intent);
         setIntent(intent);
         String query = intent.getStringExtra(SearchManager.QUERY);
-        //Bundle args = intentToFragmentArguments(
-        //        new Intent(Intent.ACTION_VIEW, ScheduleContract.Sessions.buildSearchUri(query)));
-        Bundle args = intentToFragmentArguments(new Intent(Intent.ACTION_VIEW,Uri.EMPTY));
+        Bundle args = new Bundle();
+        args.putString("title", "Search");
+        args.putInt("queryType", Config.SEARCH_TOKEN);
+        args.putString("searchString", query);
         LOGD(TAG, "onNewIntent() now reloading sessions fragment with args: " + args);
         mMoviesFragment.reloadFromArguments(args);
     }
@@ -140,14 +138,19 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
                     @Override
                     public boolean onQueryTextSubmit(String s) {
                         view.clearFocus();
+                        Bundle args = new Bundle();
+                        args.putString("title", "Search");
+                        args.putInt("queryType", Config.SEARCH_TOKEN);
+                        args.putString("searchString", s);
+                        mMoviesFragment.reloadFromArguments(args);
                         return true;
                     }
 
                     @Override
                     public boolean onQueryTextChange(String s) {
-                        if (null != mMoviesFragment) {
-                            mMoviesFragment.requestQueryUpdate(s);
-                        }
+//                        if (null != mMoviesFragment) {
+//                            mMoviesFragment.requestQueryUpdate(s);
+//                        }
                         return true;
                     }
                 });

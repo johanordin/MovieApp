@@ -32,12 +32,12 @@ import koma.movieapp.util.UIUtils;
 
 import static koma.movieapp.util.LogUtils.makeLogTag;
 
-public class PopularMoviesActivity extends BaseActivity implements MoviesFragment.Callbacks {
-    private static final String TAG = makeLogTag(PopularMoviesActivity.class);
+public class NowPlayingMoviesActivity extends BaseActivity implements MoviesFragment.Callbacks {
+    private static final String TAG = makeLogTag(NowPlayingMoviesActivity.class);
 
     // How is this Activity being used?
-    private static final int MODE_HOME = 0; // as top-level "Home" screen
-    private int mMode = MODE_HOME;
+    private static final int MODE_NOW_PLAYING = 0; // as top-level "Home" screen
+    private int mMode = MODE_NOW_PLAYING;
     private static final int MODE_TIME_FIT = 1; // showing sessions that fit in a time interval
     private static final String STATE_FILTER_0 = "STATE_FILTER_0";
     private static final String STATE_FILTER_1 = "STATE_FILTER_1";
@@ -73,7 +73,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
 
         overridePendingTransition(0, 0);
 
-        if (mMode == MODE_HOME) {
+        if (mMode == MODE_NOW_PLAYING) {
             // no title (to make more room for navigation and actions)
             // unless Nav Drawer opens
             toolbar.setTitle(null);
@@ -134,7 +134,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
     @Override
     protected int getSelfNavDrawerItem() {
         // we only have a nav drawer if we are in top-level Explore mode.
-        return mMode == MODE_HOME ? NAVDRAWER_ITEM_POPULAR : NAVDRAWER_ITEM_INVALID;
+        return mMode == MODE_NOW_PLAYING ? NAVDRAWER_ITEM_NOW_PLAYING : NAVDRAWER_ITEM_INVALID;
     }
 
     @Override
@@ -150,8 +150,8 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
                 R.id.movies_fragment);
         if (mMoviesFrag != null && savedInstanceState == null) {
             Bundle args = intentToFragmentArguments(getIntent());
-            args.putString("title", "Popular Movies");
-            args.putInt("queryType", Config.POPULAR_TOKEN);
+            args.putString("title", "Now Playing");
+            args.putInt("queryType", Config.NOW_PLAYING_TOKEN);
             mMoviesFrag.reloadFromArguments(args);
         }
 
@@ -161,7 +161,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
 
 //    private void trySetUpActionBarSpinner() {
 //        Toolbar toolbar = getActionBarToolbar();
-//        if (mMode != MODE_HOME || mSpinnerConfigured || mTagMetadata == null || toolbar == null) {
+//        if (mMode != MODE_NOW_PLAYING || mSpinnerConfigured || mTagMetadata == null || toolbar == null) {
 //            // already done it, or not ready yet, or don't need to do
 //            LOGD(TAG, "Not configuring Action Bar spinner.");
 //            return;

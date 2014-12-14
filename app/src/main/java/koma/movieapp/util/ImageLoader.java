@@ -122,7 +122,9 @@ public class ImageLoader {
         } else if (mPlaceHolderResId != -1) {
             request.placeholder(mPlaceHolderResId);
         }
-        request.into(new BitmapImageViewTarget(imageView) {
+        request.into(imageView);
+
+/*                new BitmapImageViewTarget(imageView) {
             @Override
             public void onResourceReady(Bitmap bitmap) {
                 super.onResourceReady(bitmap);
@@ -155,7 +157,7 @@ public class ImageLoader {
                     }
                 });
             }
-        });
+        });*/
     }
 
     public BitmapRequestBuilder beginImageLoad(String url,

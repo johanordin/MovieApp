@@ -37,6 +37,12 @@ public class Config {
     public static final long DAY_MILLIS = 24 * HOUR_MILLIS;
 
 
+    public static final int POPULAR_TOKEN = 0x0;
+    public static final int NOW_PLAYING_TOKEN = 0x1;
+    public static final int UPCOMING_TOKEN = 0x2;
+    public static final int SEARCH_TOKEN = 0x3;
+
+
     // How long we snooze the stale data notification for after the user has acted on it
     // (to keep from showing it repeatedly and being annoying)
     public static final long STALE_DATA_WARNING_SNOOZE = 10 * MINUTE_MILLIS;
