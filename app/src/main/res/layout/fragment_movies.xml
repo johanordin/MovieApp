@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:iosched="http://schemas.android.com/apk/res-auto"
+    xmlns:movieapp="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,10 +22,8 @@
         android:id="@+id/movies_collection_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/explore_grid_padding_half"
         android:clipToPadding="false"
-        android:scrollbarStyle="outsideOverlay"
-        iosched:internalPadding="@dimen/explore_grid_padding" />
+        android:scrollbarStyle="outsideOverlay"/>
 
     <ProgressBar
         android:id="@+id/loading"

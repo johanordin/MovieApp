@@ -610,7 +610,6 @@ public class MoviesFragment extends Fragment implements
         int darkMovieColor = 0;
 
         final TextView titleView = (TextView) view.findViewById(R.id.movie_title);
-        final TextView ratingView = (TextView) view.findViewById(R.id.movie_rating);
 
         final View movieTargetView = view.findViewById(R.id.movie_target);
 
@@ -662,14 +661,6 @@ public class MoviesFragment extends Fragment implements
 
         titleView.setText(movieTitle == null ? "?" : movieTitle);
         titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
-        // set the rating
-        if (!movieRating.equals("0.0")) {
-            ratingView.setText(movieRating + "/10");
-            ratingView.setVisibility(View.VISIBLE);
-        } else {
-            ratingView.setVisibility(View.GONE);
-        }
 
         //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
 

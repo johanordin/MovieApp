@@ -63,6 +63,7 @@ import koma.movieapp.util.ImageLoader;
 import koma.movieapp.util.LogUtils;
 import koma.movieapp.util.UIUtils;
 
+import static koma.movieapp.util.LogUtils.LOGD;
 import static koma.movieapp.util.LogUtils.LOGE;
 
 /**
@@ -428,7 +429,24 @@ public class MovieDetailActivity extends BaseActivity implements
         final String movieOverview = movie.overview;
 
         /* Title */
+
+
+        final int titleLength = mTitleString.length();
+
+        if(titleLength < Config.DETAILS_SHORT_TITLE) {
+            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_xxlarge));
+        } else if (titleLength < Config.DETAILS_MEDIUM_TITLE) {
+            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_xlarge));
+        } else if (titleLength < Config.DETAILS_LONG_TITLE) {
+            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_large));
+        } else {
+            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_small));
+        }
+
+        LOGD(TAG, "Title size: " + mTitle.getTextSize());
+
         mTitle.setText(mTitleString);
+
 
         /* Rating */
         if (movieRating.isEmpty()) {

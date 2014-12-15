@@ -18,20 +18,14 @@
     android:layout_width="match_parent"
     android:layout_height="220dp"
     android:foreground="?photoItemForeground"
-    android:id="@+id/movie_target">
+    android:id="@+id/movie_target"
+    android:elevation="8dp">
 
     <!-- Session image -->
     <ImageView android:id="@+id/session_photo_colored"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
-
-    <!-- Session category/group if non-default (e.g. "Workshop") -->
-    <TextView android:id="@+id/movie_rating"
-        style="@style/ExploreItem.Category"
-        android:padding="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 
     <!-- Info box -->
     <LinearLayout
@@ -49,7 +43,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/body_text_1_inverse"
             android:background="@color/data_item_text_background_with_alpha"
-            android:textAlignment="center"
+            android:gravity="center"
             android:elevation="8dp"
             android:text="@string/placeholder_movie_title" />
 

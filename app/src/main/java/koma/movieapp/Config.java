@@ -42,6 +42,12 @@ public class Config {
     public static final int UPCOMING_TOKEN = 0x2;
     public static final int SEARCH_TOKEN = 0x3;
 
+    public static final int DETAILS_SHORT_TITLE = 12;
+    public static final int DETAILS_MEDIUM_TITLE = 20;
+    public static final int DETAILS_LONG_TITLE = 30;
+
+
+
 
     // How long we snooze the stale data notification for after the user has acted on it
     // (to keep from showing it repeatedly and being annoying)
@@ -56,7 +62,7 @@ public class Config {
     public static final String TMDB_API_KEY = "6933170df8ee99aaea39ffe9521bedc5";
 
     // OAuth 2.0 related config
-    public static final String APP_NAME = "GoogleIO-Android";
+    public static final String APP_NAME = "Moviespotter";
 
 
 

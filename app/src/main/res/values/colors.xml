@@ -21,7 +21,7 @@
     <color name="body_text_3">#60000000</color>
     <color name="body_text_disabled">#44000000</color>
 
-    <color name="body_text_1_inverse">#deffffff</color>
+    <color name="body_text_1_inverse">#efffffff</color>
     <color name="body_text_2_inverse">#8affffff</color>
 
     <color name="theme_primary">#009688</color>
