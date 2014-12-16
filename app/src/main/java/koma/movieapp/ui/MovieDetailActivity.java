@@ -27,9 +27,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.transition.Explode;
-import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +34,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,7 +46,6 @@ import com.uwetrottmann.tmdb.entities.AppendToResponse;
 import com.uwetrottmann.tmdb.entities.Credits;
 import com.uwetrottmann.tmdb.entities.Genre;
 import com.uwetrottmann.tmdb.entities.Movie;
-import com.uwetrottmann.tmdb.entities.Person;
 import com.uwetrottmann.tmdb.enumerations.AppendToResponseItem;
 import com.uwetrottmann.tmdb.services.MoviesService;
 
@@ -63,7 +58,6 @@ import koma.movieapp.R;
 import koma.movieapp.ui.widget.CheckableFrameLayout;
 import koma.movieapp.ui.widget.ObservableScrollView;
 import koma.movieapp.util.ImageLoader;
-import koma.movieapp.util.LUtils;
 import koma.movieapp.util.LogUtils;
 import koma.movieapp.util.UIUtils;
 
@@ -109,6 +103,11 @@ public class MovieDetailActivity extends BaseActivity implements
     private ViewGroup mMovieGenresContainer;
     private LinearLayout mMovieGenres;
 
+    private LinearLayout mMovieDirectors;
+    private LinearLayout mMovieWriters;
+    private LinearLayout mMovieProducers;
+    private LinearLayout mMovieCast;
+
     private View mHeaderBox;
     private View mDetailsContainer;
 
@@ -143,6 +142,7 @@ public class MovieDetailActivity extends BaseActivity implements
     private float mFABElevation;
 
     private int mTagColorDotSize;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,8 +220,13 @@ public class MovieDetailActivity extends BaseActivity implements
         mPhotoView = (ImageView) findViewById(R.id.movie_backdrop);
 
         mMovieOverview = (TextView) findViewById(R.id.movie_overview);
+        mMovieDirectors = (LinearLayout) findViewById(R.id.movie_directors_container);
+        //mMovieWriters = (LinearLayout) findViewById(R.id.movie_writers_container);
+        //mMovieProducers = (LinearLayout) findViewById(R.id.movie_producers_container);
+        mMovieCast = (LinearLayout) findViewById(R.id.movie_cast_container);
         mMovieGenres = (LinearLayout) findViewById(R.id.movie_genre);
         mMovieGenresContainer = (ViewGroup) findViewById(R.id.movie_genres_container);
+
 
         mAddScheduleButton = (CheckableFrameLayout) findViewById(R.id.add_schedule_button);
 
@@ -438,16 +443,20 @@ public class MovieDetailActivity extends BaseActivity implements
 
 
         final int titleLength = mTitleString.length();
+        final int textDimension;
 
-        if(titleLength < Config.DETAILS_SHORT_TITLE) {
-            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_xlarge));
+        if (titleLength < Config.DETAILS_SHORT_TITLE) {
+            textDimension = R.dimen.text_title_size_xxlarge;
         } else if (titleLength < Config.DETAILS_MEDIUM_TITLE) {
-            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_large));
+            textDimension = R.dimen.text_title_size_xlarge;
         } else if (titleLength < Config.DETAILS_LONG_TITLE) {
-            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_medium));
+            textDimension = R.dimen.text_title_size_large;
         } else {
-            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_small));
+            textDimension = R.dimen.text_title_size_medium;
         }
+
+        mTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                getResources().getDimension(textDimension));
 
         LOGD(TAG, "Title size: " + mTitle.getTextSize());
 
@@ -455,23 +464,20 @@ public class MovieDetailActivity extends BaseActivity implements
 
 
         /* Rating */
-        if (movieRating.isEmpty()) {
-            mMovieRating.setVisibility(View.GONE);
-        } else {
+        if (!movieRating.isEmpty()) {
+            mMovieRating.setVisibility(View.VISIBLE);
             mMovieRating.setText(movieRating + "/10");
         }
 
         /* Runtime */
-        if (movieRuntime.isEmpty()) {
-            mMovieRuntime.setVisibility(View.GONE);
-        } else {
+        if (!movieRuntime.isEmpty()) {
+            mMovieRuntime.setVisibility(View.VISIBLE);
             mMovieRuntime.setText(movieRuntime + " " + getResources().getString(R.string.minutes));
         }
 
         /* Overview */
-        if (movieOverview.isEmpty()) {
-            mMovieOverview.setVisibility(View.GONE);
-        } else {
+        if (!movieOverview.isEmpty()) {
+            mMovieOverview.setVisibility(View.VISIBLE);
             mMovieOverview.setText(movieOverview);
         }
 
@@ -504,36 +510,101 @@ public class MovieDetailActivity extends BaseActivity implements
 
         /* Crew */
 
-//        Credits creditsList = movie.credits;
-//
-//        List<Credits.CrewMember> crewList = creditsList.crew;
-//        List<Credits.CastMember> castList = creditsList.cast;
-//
+         /* Director */
 
-        /* Director */
+        Credits creditsList = movie.credits;
 
-//        if( !crewList.isEmpty()) {
+        if (creditsList != null) {
+
+            List<Credits.CrewMember> crewList = creditsList.crew;
+            List<Credits.CastMember> castList = creditsList.cast;
+
+            if (!crewList.isEmpty()) {
+
+                ArrayList<Credits.CrewMember> directorList = new ArrayList<>();
+                //ArrayList<Credits.CrewMember> writerList = new ArrayList<>();
+                //ArrayList<Credits.CrewMember> producerList = new ArrayList<>();
+
+                for (Credits.CrewMember crewMember : crewList) {
+
+                    if (crewMember.department.equals("Directing")) {
+                        directorList.add(crewMember);
+                    }
+//                    if (crewMember.department.equals("Writing")) {
+//                        writerList.add(crewMember);
+//                    }
+//                    if (crewMember.department.equals("Production")) {
+//                        producerList.add(crewMember);
+//                    }
+                }
+
+                if (!directorList.isEmpty()) {
+                    mMovieDirectors.setVisibility(View.VISIBLE);
+                    TextView directorHeader = (TextView) findViewById(R.id.movie_director_header);
+                    directorHeader.setVisibility(View.VISIBLE);
+                    mMovieDirectors.removeAllViews();
+                    LayoutInflater inflater = LayoutInflater.from(this);
+
+                    for (Credits.CrewMember director : directorList) {
+                        TextView chipView = (TextView) inflater.inflate(
+                                R.layout.include_cast_crew_member, mMovieDirectors, false);
+                        chipView.setText(director.name);
+                        mMovieDirectors.addView(chipView);
+                    }
+
+                }
+//                if (!writerList.isEmpty()) {
+//                    mMovieWriters.setVisibility(View.VISIBLE);
+//                    LayoutInflater inflater = LayoutInflater.from(this);
 //
-//            mMovieDirectors.setVisibility(View.VISIBLE);
-//
-//            LayoutInflater inflater = LayoutInflater.from(this);
-//
-//            for(Credits.CrewMember crewMember : crewList) {
-//
-//                // Director
-//                if(crewMember.job.equals("Director")) {
-//
-//                    TextView directorView = (TextView) inflater.inflate(
-//                            R.layout.include_movie_director_chip, mMovieDirectors, false);
-//                    directorView.setText(crewMember.name);
-//                    mMovieDirectors.addView(directorView);
+//                    for (Credits.CrewMember writer : writerList) {
+//                        TextView chipView = (TextView) inflater.inflate(
+//                                R.layout.include_cast_crew_member, mMovieWriters, false);
+//                        chipView.setText(writer.name);
+//                        mMovieWriters.addView(chipView);
+//                    }
 //                }
+//                if (!producerList.isEmpty()) {
+//                    mMovieProducers.setVisibility(View.VISIBLE);
+//                    LayoutInflater inflater = LayoutInflater.from(this);
 //
-//                // Add producer and other stuff
-//
-//            }
-//
-//        }
+//                    for (Credits.CrewMember producer : producerList) {
+//                        TextView chipView = (TextView) inflater.inflate(
+//                                R.layout.include_cast_crew_member, mMovieProducers, false);
+//                        chipView.setText(producer.name);
+//                        mMovieProducers.addView(chipView);
+//                    }
+//                }
+
+            }
+
+            if (!castList.isEmpty()) {
+                mMovieCast.setVisibility(View.VISIBLE);
+                mMovieCast.removeAllViews();
+                TextView castHeader = (TextView) findViewById(R.id.movie_cast_header);
+                castHeader.setVisibility(View.VISIBLE);
+                LayoutInflater inflater = LayoutInflater.from(this);
+
+                for (Credits.CastMember castMember : castList) {
+                    if (castMember.order < 5) {
+                        TextView chipView = (TextView) inflater.inflate(
+                                R.layout.include_cast_crew_member, mMovieCast, false);
+                        chipView.setText(castMember.name);
+                        mMovieCast.addView(chipView);
+                    }
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+
+
 
 
 
@@ -552,8 +623,6 @@ public class MovieDetailActivity extends BaseActivity implements
                 chipView.setText(genre.name);
                 mMovieGenres.addView(chipView);
             }
-        } else {
-            mMovieGenresContainer.setVisibility(View.GONE);
         }
 
         //updateEmptyView();

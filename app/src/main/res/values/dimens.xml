@@ -65,6 +65,11 @@
     <dimen name="text_size_diff_large_small">6sp</dimen>
     <dimen name="speaker_image_size">40dp</dimen>
 
+    <dimen name="text_title_size_medium">24sp</dimen>
+    <dimen name="text_title_size_large">28sp</dimen>
+    <dimen name="text_title_size_xlarge">30sp</dimen>
+    <dimen name="text_title_size_xxlarge">34sp</dimen>
+
      <!-- Widget -->
     <dimen name="widget_margin">0dp</dimen>
 

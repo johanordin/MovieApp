@@ -78,7 +78,7 @@
     <string name="navdrawer_item_settings">Settings</string>
     <string name="overview_title">Overview</string>
 
-    <string name="director_title">Director</string>
+
 
 
     <!-- Button text indicating the session is in the user's schedule -->
@@ -99,6 +99,10 @@
     <string name="search_label">Movies</string>
     <string name="search_hint">Search movies</string>
     <string name="transition_backdrop">photo</string>
+    <string name="cast_title">Starring</string>
+    <string name="director_title">Directors</string>
+    <string name="writer_title">Writers</string>
+    <string name="producer_title">Producers</string>
 
 
 </resources>

@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:transitionName="@string/transition_backdrop"/>
+                android:transitionName="@string/transition_backdrop" />
         </FrameLayout>
 
         <LinearLayout
@@ -53,14 +53,6 @@
             android:paddingRight="@dimen/keyline_1"
             android:paddingTop="16dp">
 
-            <TextView
-                android:id="@+id/time_hint"
-                style="@style/SessionTimeHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="@dimen/keyline_1"
-                android:visibility="gone" />
 
             <!-- Overview header -->
             <TextView
@@ -70,8 +62,9 @@
                 android:ellipsize="end"
                 android:text="@string/overview_title"
                 android:textAlignment="viewStart"
-                android:textColor="@color/body_text_1"
-                android:textSize="16sp" />
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
 
             <!-- Overview -->
             <TextView
@@ -80,8 +73,104 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:layout_marginLeft="@dimen/keyline_1" />
+                android:layout_marginLeft="@dimen/keyline_1"
+                android:visibility="gone"/>
 
+            <!-- Director header -->
+            <TextView
+                android:id="@+id/movie_director_header"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/keyline_1"
+                android:ellipsize="end"
+                android:text="@string/director_title"
+                android:textAlignment="viewStart"
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- Director container -->
+            <LinearLayout
+                android:id="@+id/movie_directors_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp">
+            </LinearLayout>
+
+
+            <!-- Writer header -->
+            <TextView
+                android:id="@+id/movie_writer_header"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/keyline_1"
+                android:ellipsize="end"
+                android:text="@string/writer_title"
+                android:textAlignment="viewStart"
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- Writers container -->
+            <LinearLayout
+                android:id="@+id/movie_writers_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+            </LinearLayout>
+
+            <!-- Producer header -->
+            <TextView
+                android:id="@+id/movie_producer_header"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/keyline_1"
+                android:ellipsize="end"
+                android:text="@string/producer_title"
+                android:textAlignment="viewStart"
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- Producers container -->
+            <LinearLayout
+                android:id="@+id/movie_producers_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp">
+            </LinearLayout>
+
+            <!-- Cast header -->
+            <TextView
+                android:id="@+id/movie_cast_header"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/keyline_1"
+                android:ellipsize="end"
+                android:text="@string/cast_title"
+                android:textAlignment="viewStart"
+                android:textColor="@color/body_text_2"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <!-- Cast container -->
+            <LinearLayout
+                android:id="@+id/movie_cast_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp">
+            </LinearLayout>
 
 
             <!-- Genres container -->
@@ -93,7 +182,8 @@
                 android:layout_marginLeft="@dimen/keyline_1"
                 android:fadingEdgeLength="16dp"
                 android:requiresFadingEdge="horizontal"
-                android:scrollbars="none">
+                android:scrollbars="none"
+                android:visibility="gone">
 
                 <!-- Genre -->
                 <LinearLayout
@@ -113,8 +203,8 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:orientation="vertical"
             android:elevation="8dp"
+            android:orientation="vertical"
             android:paddingBottom="16dp">
 
             <include layout="@layout/toolbar_actionbar" />
@@ -133,9 +223,7 @@
                 android:maxLines="4"
                 android:text="@string/placeholder_movie_title"
                 android:textAlignment="viewStart"
-                android:textColor="@color/body_text_1_inverse"
-                android:textSize="@dimen/text_size_xxlarge"
-                android:textStyle="@integer/font_textStyle_medium" />
+                android:textColor="@color/body_text_1_inverse"/>
 
 
             <LinearLayout
@@ -155,7 +243,8 @@
                     android:text="@string/placeholder_session_subtitle"
                     android:textAlignment="viewStart"
                     android:textColor="@color/body_text_2_inverse"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+                    android:visibility="gone" />
 
 
                 <!-- Movie runtime -->
@@ -169,7 +258,8 @@
                     android:maxLines="2"
                     android:textAlignment="viewStart"
                     android:textColor="@color/body_text_2_inverse"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:textSize="@dimen/text_size_medium"
+                    android:visibility="gone" />
 
 
             </LinearLayout>
@@ -179,11 +269,12 @@
 
 
         <!-- FAB -->
-        <include layout="@layout/include_add_schedule_fab"
-            android:layout_gravity="right"
-            android:layout_height="@dimen/add_to_schedule_button_height"
+        <include
+            layout="@layout/include_add_schedule_fab"
             android:layout_width="@dimen/add_to_schedule_button_height"
-            android:layout_marginRight="@dimen/keyline_1"            />
+            android:layout_height="@dimen/add_to_schedule_button_height"
+            android:layout_gravity="right"
+            android:layout_marginRight="@dimen/keyline_1" />
 
 
     </FrameLayout>
