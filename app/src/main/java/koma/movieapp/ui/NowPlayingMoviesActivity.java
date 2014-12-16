@@ -272,7 +272,7 @@ public class NowPlayingMoviesActivity extends BaseActivity implements MoviesFrag
 
     // TODO
     @Override
-    public void onSessionSelected(String movieId, View clickedView) {
+    public void onMovieSelected(String movieId, View clickedView) {
 //        getLUtils().startActivityWithTransition(new Intent(Intent.ACTION_VIEW,
 //                        ScheduleContract.Sessions.buildSessionUri(movieId)),
 //                clickedView,

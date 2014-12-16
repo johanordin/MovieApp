@@ -25,7 +25,7 @@
     <ImageView android:id="@+id/session_photo_colored"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:transitionName="@string/transition_backdrop"/>
 
     <!-- Info box -->
     <LinearLayout

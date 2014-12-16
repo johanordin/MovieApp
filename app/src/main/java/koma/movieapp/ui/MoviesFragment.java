@@ -25,12 +25,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,7 +32,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.content.AsyncTaskLoader;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.graphics.Palette;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -191,7 +184,6 @@ public class MoviesFragment extends Fragment implements
         reloadMovieData(false);
     }
 
-    // TODO fix reload
     private void reloadMovieData(boolean fullReload) {
         LOGD(TAG, "Reloading session data: " + (fullReload ? "FULL RELOAD" : "light refresh"));
         mSessionDataIsFullReload = fullReload;
@@ -216,12 +208,12 @@ public class MoviesFragment extends Fragment implements
     }
 
     public interface Callbacks {
-        public void onSessionSelected(String sessionId, View clickedView);
+        public void onMovieSelected(String sessionId, View clickedView);
     }
 
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onSessionSelected(String sessionId, View clickedView) {
+        public void onMovieSelected(String sessionId, View clickedView) {
         }
 
     };
@@ -660,7 +652,6 @@ public class MoviesFragment extends Fragment implements
         //titleView.setBackgroundColor(getResources().getColor(R.color.theme_primary));
 
         titleView.setText(movieTitle == null ? "?" : movieTitle);
-        titleView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
         //photoView.setColorFilter(new PorterDuffColorFilter(getResources().getColor(R.color.data_item_background_with_alpha),PorterDuff.Mode.SCREEN));
 
@@ -673,7 +664,7 @@ public class MoviesFragment extends Fragment implements
         movieTargetView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCallbacks.onSessionSelected(movieId, finalPhotoView);
+                mCallbacks.onMovieSelected(movieId, finalPhotoView);
             }
         });
 

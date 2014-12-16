@@ -42,7 +42,7 @@ public class Config {
     public static final int UPCOMING_TOKEN = 0x2;
     public static final int SEARCH_TOKEN = 0x3;
 
-    public static final int DETAILS_SHORT_TITLE = 12;
+    public static final int DETAILS_SHORT_TITLE = 15;
     public static final int DETAILS_MEDIUM_TITLE = 20;
     public static final int DETAILS_LONG_TITLE = 30;
 

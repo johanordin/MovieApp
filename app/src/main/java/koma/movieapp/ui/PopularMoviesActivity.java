@@ -64,6 +64,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_popular);
@@ -71,7 +72,7 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
 
         Toolbar toolbar = getActionBarToolbar();
 
-        overridePendingTransition(0, 0);
+        //overridePendingTransition(0, 0);
 
         if (mMode == MODE_HOME) {
             // no title (to make more room for navigation and actions)
@@ -270,19 +271,14 @@ public class PopularMoviesActivity extends BaseActivity implements MoviesFragmen
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO
     @Override
-    public void onSessionSelected(String movieId, View clickedView) {
-//        getLUtils().startActivityWithTransition(new Intent(Intent.ACTION_VIEW,
-//                        ScheduleContract.Sessions.buildSessionUri(movieId)),
-//                clickedView,
-//                MovieDetailActivity.TRANSITION_NAME_PHOTO);
+    public void onMovieSelected(String movieId, View clickedView) {
 
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra("movieId", movieId);
 
         getLUtils().startActivityWithTransition(intent, clickedView, MovieDetailActivity.TRANSITION_NAME_PHOTO);
-//
+
     }
 
     @Override

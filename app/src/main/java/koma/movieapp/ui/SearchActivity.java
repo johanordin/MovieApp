@@ -91,7 +91,7 @@ public class SearchActivity extends BaseActivity implements MoviesFragment.Callb
     }
 
     @Override
-    public void onSessionSelected(String movieId, View clickedView) {
+    public void onMovieSelected(String movieId, View clickedView) {
 
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra("movieId", movieId);

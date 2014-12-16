@@ -98,6 +98,7 @@
     <string name="runtime_title">Runtime:</string>
     <string name="search_label">Movies</string>
     <string name="search_hint">Search movies</string>
+    <string name="transition_backdrop">photo</string>
 
 
 </resources>

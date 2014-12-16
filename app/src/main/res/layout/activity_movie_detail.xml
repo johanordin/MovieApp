@@ -38,14 +38,15 @@
                 android:id="@+id/movie_backdrop"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:transitionName="@string/transition_backdrop"/>
         </FrameLayout>
 
         <LinearLayout
             android:id="@+id/details_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#fff"
+            android:background="?attr/selectableItemBackground"
             android:clipToPadding="false"
             android:orientation="vertical"
             android:paddingBottom="@dimen/session_details_extra_space_bottom"

@@ -28,6 +28,8 @@ import android.os.Handler;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.transition.Explode;
+import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +37,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -60,6 +63,7 @@ import koma.movieapp.R;
 import koma.movieapp.ui.widget.CheckableFrameLayout;
 import koma.movieapp.ui.widget.ObservableScrollView;
 import koma.movieapp.util.ImageLoader;
+import koma.movieapp.util.LUtils;
 import koma.movieapp.util.LogUtils;
 import koma.movieapp.util.UIUtils;
 
@@ -143,6 +147,7 @@ public class MovieDetailActivity extends BaseActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //UIUtils.tryTranslateHttpIntent(this);
+
         boolean shouldBeFloatingWindow = shouldBeFloatingWindow();
         if (shouldBeFloatingWindow) {
             setupFloatingWindow();
@@ -157,7 +162,7 @@ public class MovieDetailActivity extends BaseActivity implements
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                finishAfterTransition();
             }
         });
         mHandler.post(new Runnable() {
@@ -332,9 +337,9 @@ public class MovieDetailActivity extends BaseActivity implements
     public void onResume() {
         super.onResume();
         //updatePlusOneButton();
-        if (mTimeHintUpdaterRunnable != null) {
-            mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
-        }
+//        if (mTimeHintUpdaterRunnable != null) {
+//            mHandler.postDelayed(mTimeHintUpdaterRunnable, TIME_HINT_UPDATE_INTERVAL);
+//        }
 
         // Refresh whether or not feedback has been submitted
         getLoaderManager().restartLoader(0, mArguments, this);
@@ -434,11 +439,11 @@ public class MovieDetailActivity extends BaseActivity implements
         final int titleLength = mTitleString.length();
 
         if(titleLength < Config.DETAILS_SHORT_TITLE) {
-            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_xxlarge));
-        } else if (titleLength < Config.DETAILS_MEDIUM_TITLE) {
             mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_xlarge));
-        } else if (titleLength < Config.DETAILS_LONG_TITLE) {
+        } else if (titleLength < Config.DETAILS_MEDIUM_TITLE) {
             mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_large));
+        } else if (titleLength < Config.DETAILS_LONG_TITLE) {
+            mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_medium));
         } else {
             mTitle.setTextSize(getResources().getDimension(R.dimen.text_size_small));
         }
