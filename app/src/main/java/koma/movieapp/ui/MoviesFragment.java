@@ -614,7 +614,7 @@ public class MoviesFragment extends Fragment implements
 
         ImageView photoView = (ImageView) view.findViewById(R.id.session_photo_colored);
 
-        if (photoView != null && movieBackdrop != null) {
+        if (photoView != null) {
             if (!mPreloader.isDimensSet()) {
                 final ImageView finalPhotoView = photoView;
                 photoView.post(new Runnable() {
@@ -762,7 +762,11 @@ public class MoviesFragment extends Fragment implements
 
                     //System.out.println("PRELOADER getItems: Backdrop = " + backdrop);
 
-                    urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
+                    if(backdrop != null) {
+                        urls.add(Config.TMDB_IMAGE_BASE_URL + "w780" + backdrop);
+                    } else {
+                        urls.add(null);
+                    }
 
                 }
             }

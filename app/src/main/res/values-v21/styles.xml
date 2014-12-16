@@ -23,13 +23,6 @@
         <item name="photoItemForeground">@drawable/photo_item_foreground</item>
         <item name="photoItemForegroundBorderless">@drawable/photo_item_foreground_borderless</item>
 
-        <!-- enable window content transitions -->
-        <item name="android:windowContentTransitions">true</item>
-
-        <!-- specify enter and exit transitions -->
-        <item name="android:windowEnterTransition">@transition/explode</item>
-        <item name="android:windowExitTransition">@transition/explode</item>
-
         <item name="android:navigationBarColor">#000</item>
         <item name="android:statusBarColor">?colorPrimaryDark</item>
 

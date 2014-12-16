@@ -226,7 +226,7 @@ public class MovieDetailActivity extends BaseActivity implements
         mAddScheduleButton = (CheckableFrameLayout) findViewById(R.id.add_schedule_button);
 
 
-        ViewCompat.setTransitionName(mPhotoView, TRANSITION_NAME_PHOTO);
+        //ViewCompat.setTransitionName(mPhotoView, TRANSITION_NAME_PHOTO);
 
         LoaderManager manager = getLoaderManager();
         manager.initLoader(0, mArguments, this);
@@ -430,6 +430,7 @@ public class MovieDetailActivity extends BaseActivity implements
 
         final String movieRating = movie.vote_average.toString();
         final String movieRuntime = movie.runtime.toString();
+        final String movieBackdropPath = movie.backdrop_path;
 
         final String movieOverview = movie.overview;
 
@@ -475,9 +476,11 @@ public class MovieDetailActivity extends BaseActivity implements
         }
 
         /* Backdrop */
-        final String backdropUrl = Config.TMDB_IMAGE_BASE_URL + Config.TMDB_IMAGE_SIZE + movie.backdrop_path;
+        final String baseBackdropUrl = Config.TMDB_IMAGE_BASE_URL + Config.TMDB_IMAGE_SIZE;
+        final String backdropUrl = baseBackdropUrl + movieBackdropPath;
 
-        if (!TextUtils.isEmpty(backdropUrl)) {
+
+        if (movieBackdropPath != null) {
             mHasPhoto = true;
             mNoPlaceholderImageLoader.loadImage(backdropUrl, mPhotoView, new RequestListener<String>() {
                 @Override
